@@ -1,6 +1,7 @@
 package com.myproject.teacher.ui.view;
 
 import com.myproject.backend.teacher.service.TeacherAccountService;
+import com.myproject.teacher.ui.view.dashboard.DashboardView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
@@ -66,9 +67,9 @@ public class TeacherLoginView extends VerticalLayout {
 				if (authenticated) {
 					
 					UI.getCurrent().getSession().setAttribute("teacher_email", email);
-					UI.getCurrent().getSession().setAttribute("teacher_password", password);
+					//UI.getCurrent().getSession().setAttribute("teacher_password", password);
 					
-					UI.getCurrent().navigate("teacher/dashboard");
+					UI.getCurrent().navigate(DashboardView.class);
 				} else {
 					loginOverlay.setError(true);
 					loginOverlay.setEnabled(true);

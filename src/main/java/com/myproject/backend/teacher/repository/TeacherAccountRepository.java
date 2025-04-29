@@ -10,8 +10,6 @@ import com.myproject.backend.teacher.entity.TeacherAccount;
 @Repository
 public interface TeacherAccountRepository extends JpaRepository<TeacherAccount, Integer> {
 	
-	
-	boolean existsByEmail(String email);
 	Optional <TeacherAccount> findByEmail(String email);
 
 }

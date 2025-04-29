@@ -42,8 +42,8 @@ public class SectionDialog extends Dialog {
             courseField.setInvalid(courseIsEmpty);
 
             if (!sectionIsEmpty && !courseIsEmpty) {
+            	
                 onSave.accept(sectionField.getValue(), courseField.getValue());
-                
                 
                 SectionEntity sec = SectionEntity.builder()
                 		.sectionName(sectionField.getValue())
