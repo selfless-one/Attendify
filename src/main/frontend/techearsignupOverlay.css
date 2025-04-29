@@ -1,0 +1,10 @@
+/* Test if the CSS is really linked */
+
+:host([theme~="login-overlay"]) [part="form"] {
+    background-color: lightyellow; /* Change the background of the login form */
+}
+
+/* Change the input fields background color */
+:host([theme~="login-overlay"]) [part="form"] vaadin-text-field::part(input-field) {
+    background-color: lightblue;
+}

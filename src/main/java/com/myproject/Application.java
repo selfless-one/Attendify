@@ -12,8 +12,10 @@ import java.time.Clock;
 @Theme("default")
 public class Application implements AppShellConfigurator {
 
+    private static final long serialVersionUID = 1L;
+
     @Bean
-    public Clock clock() {
+    Clock clock() {
         return Clock.systemDefaultZone(); // You can also use Clock.systemUTC()
     }
 
