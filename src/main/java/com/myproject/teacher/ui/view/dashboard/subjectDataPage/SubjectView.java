@@ -18,7 +18,9 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.repository.SubjectRepository;
 import com.myproject.backend.teacher.service.SectionService;
+import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.dashboard.DashboardHeader;
 
@@ -34,8 +36,9 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
 
     private static final long serialVersionUID = 1L;
 
-    private final TeacherAccountService tService;
+    private final TeacherAccountService teacherAccService;
     private final SectionService sectionService;
+    private final SubjectService subjectService;
 
     private TeacherAccount acc;
     private String sessionedEmail;
@@ -48,9 +51,10 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
     private Grid<Subject> subjectGrid;
     private List<Subject> subjects = new LinkedList<>();
 
-    public SubjectView(TeacherAccountService tService, SectionService sectionService) {
-        this.tService = tService;
+    public SubjectView(TeacherAccountService teacherAccService, SectionService sectionService, SubjectService subjectService) {
+        this.teacherAccService = teacherAccService;
         this.sectionService = sectionService;
+        this.subjectService = subjectService;
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -67,7 +71,7 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
             return;
         }
 
-        this.acc = tService.getAccountByEmail(sessionedEmail);
+        this.acc = teacherAccService.getAccountByEmail(sessionedEmail);
         buildUI();
     }
 
@@ -211,15 +215,18 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
        
         subjects.clear();
         
-        sectionService.getAllSubjectOfSection(acc).forEach(subject ->
-            subjects.add(new Subject(subject.getSubjectCode(), subject.getSubjectDescription(), null))
-        );
+        
+        Integer id = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSection");
+        
+        subjectService.getAllSubjectBySectionID(id).forEach(subs -> {
+        	 subjects.add(new Subject(subs.getSubjectCode(), subs.getSubjectDescription(), null));
+        });
         
         subjectGrid.setItems(subjects);
     }
 
     private void showAddSubjectDialog() {
-        SubjectDialog dialog = new SubjectDialog(this::addSubject, tService, acc);
+        SubjectDialog dialog = new SubjectDialog(this::addSubject, teacherAccService, acc);
         dialog.open();
     }
 

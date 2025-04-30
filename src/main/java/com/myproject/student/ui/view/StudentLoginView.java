@@ -57,8 +57,14 @@ public class StudentLoginView extends VerticalLayout {
 			LumoUtility.FontWeight.SEMIBOLD,
 			LumoUtility.BorderRadius.MEDIUM,
 			LumoUtility.Padding.SMALL,
-			LumoUtility.TextColor.PRIMARY
+			LumoUtility.TextColor.PRIMARY,
+			LumoUtility.Background.PRIMARY
 		);
+		
+		
+		//toggleBtn.getStyle().set("background-color", "#4460EF");
+		toggleBtn.getStyle().set("color", "white");
+		
 		
 		
 		toggleBtn.addClickListener(e -> {

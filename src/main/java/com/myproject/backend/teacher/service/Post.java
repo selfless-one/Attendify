@@ -41,7 +41,7 @@ public class Post implements CommandLineRunner {
 
         
         SectionEntity sect1 = SectionEntity.builder().sectionName("LFAU133N001").course("BSIT").teacher(teacher1).build();
-        SectionEntity sect2 = SectionEntity.builder().sectionName("LFAU133N001").course("BSIT").teacher(teacher1).build();
+        SectionEntity sect2 = SectionEntity.builder().sectionName("LFAU133N003").course("BSIT").teacher(teacher1).build();
         SectionEntity sect3 = SectionEntity.builder().sectionName("LFAU133N002").course("BSIT").teacher(teacher1).build();
         
         SectionEntity sect5 = SectionEntity.builder().sectionName("LFAU133N004").course("BSIT").teacher(teacher2).build();
@@ -61,10 +61,10 @@ public class Post implements CommandLineRunner {
         SubjectEntity subjectOfSect1 = SubjectEntity.builder().subjectCode("CC05").subjectDescription("Com 5").section(sect1).build();
         SubjectEntity subjectOfSect2 = SubjectEntity.builder().subjectCode("PF1").subjectDescription("Event Driven").section(sect1).build();
         
-        SubjectEntity subjectOfSect3 = SubjectEntity.builder().subjectCode("CC05").subjectDescription("ss 5").section(sect3).build();
-        SubjectEntity subjectOfSect4 = SubjectEntity.builder().subjectCode("PF1").subjectDescription("ss Driven").section(sect3).build();
-        SubjectEntity subjectOfSect5 = SubjectEntity.builder().subjectCode("CC05").subjectDescription("Cs 5").section(sect3).build();
-        SubjectEntity subjectOfSect6 = SubjectEntity.builder().subjectCode("PF1").subjectDescription("Est Driven").section(sect3).build();
+        SubjectEntity subjectOfSect3 = SubjectEntity.builder().subjectCode("CCsdf05").subjectDescription("ss 5").section(sect3).build();
+        SubjectEntity subjectOfSect4 = SubjectEntity.builder().subjectCode("PFsdf1").subjectDescription("ss Driven").section(sect3).build();
+        SubjectEntity subjectOfSect5 = SubjectEntity.builder().subjectCode("CsdC05").subjectDescription("Cs 5").section(sect3).build();
+        SubjectEntity subjectOfSect6 = SubjectEntity.builder().subjectCode("PdF1").subjectDescription("Est Driven").section(sect3).build();
         
         subjectRepository.save(subjectOfSect1);
         subjectRepository.save(subjectOfSect2);

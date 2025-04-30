@@ -15,7 +15,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.TeacherAccount;
 import com.myproject.backend.teacher.service.TeacherAccountService;
-import com.myproject.teacher.ui.view.dashboard.subjectDataPage.SubjectView;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -100,9 +99,9 @@ public class DashboardView extends VerticalLayout {
 				+ "'transition: background-color 0.3s ease;' + " + "'}';");
 
 		teacherAccount.getSections().forEach(sec -> {
-			teacherSectionsHandled.add(new SectionDTO(sec.getSectionName(), sec.getCourse(), sec.getDateCreated()));
+			teacherSectionsHandled.add(new SectionDTO(sec.getId(), sec.getSectionName(), sec.getCourse(), sec.getDateCreated()));
 		});
-
+		
 		sectionsInGrid.setItems(teacherSectionsHandled);
 
 		searchField.addValueChangeListener(e -> {
@@ -126,6 +125,8 @@ public class DashboardView extends VerticalLayout {
 				try {
 					Thread.sleep(2000);
 
+					UI.getCurrent().getSession().setAttribute("idOfSelectedSection", selectedSection.getId());
+					
 					UI.getCurrent().navigate("teacher/dashboard/subject/" + sectionName);
 				} catch (InterruptedException e1) {
 

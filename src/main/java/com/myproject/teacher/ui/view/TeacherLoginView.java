@@ -29,7 +29,7 @@ public class TeacherLoginView extends VerticalLayout {
 		// Setup LoginI18n
 		LoginI18n i18n = LoginI18n.createDefault();
 		i18n.getForm().setUsername("Email");
-
+		
 		// Create login overlay
 		LoginOverlay loginOverlay = new LoginOverlay();
 		loginOverlay.setI18n(i18n);
@@ -112,11 +112,16 @@ public class TeacherLoginView extends VerticalLayout {
 			LumoUtility.Margin.Top.SMALL,
 			LumoUtility.FontWeight.SEMIBOLD,
 			LumoUtility.BorderRadius.MEDIUM,
-			LumoUtility.Padding.SMALL,
-			LumoUtility.TextColor.PRIMARY
+			LumoUtility.Padding.SMALL
+			
 		);
 		
-
+		// "#00838F" green minimalst
+		// "#00695C"
+		toggleBtn.getStyle().set("background-color", "#00695C");
+		toggleBtn.getStyle().set("color", "WHITE");
+		
+		
 		toggleBtn.addClickListener(e -> {
 			
 			UI.getCurrent().navigate("student/login");
