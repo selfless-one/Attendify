@@ -2,6 +2,7 @@ package com.myproject.backend.teacher.service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,15 @@ public class SectionService {
 	    }
 	    
 	    return subjects;
+	}
+	
+	
+	public Optional<SectionEntity> getAccountById(Integer id) {
+		return sectionRepo.findById(id);
+	}
+	
+	public void saveChanges(SectionEntity sectionEntity) {
+		sectionRepo.save(sectionEntity);
 	}
 
 	

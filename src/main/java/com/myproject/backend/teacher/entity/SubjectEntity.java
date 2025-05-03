@@ -1,5 +1,7 @@
 package com.myproject.backend.teacher.entity;
 
+import java.time.LocalTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +33,9 @@ public class SubjectEntity {
 	private String subjectCode;
 	private String subjectDescription;
 	private String dateAdded;
+	
+	private String status;
+	private LocalTime attendanceEndTime;
 	
 	@ManyToOne()
 	@JoinColumn(name = "section_id")

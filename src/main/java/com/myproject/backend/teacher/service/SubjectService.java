@@ -1,6 +1,8 @@
 package com.myproject.backend.teacher.service;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -25,5 +27,26 @@ public class SubjectService {
 		
 	}
 	
+	public Optional<SubjectEntity> getById(Integer id) {
+		return subjectRepo.findById(id);
+	}
 	
+	
+	public void updateSubject(SubjectEntity sub) {
+		subjectRepo.save(sub);
+	}
+	
+	public void updateStatusAndAttedanceEndTimeAtById(Integer subjectId, String newStatus, LocalTime attendanceEndtime) {
+		
+		subjectRepo.findById(subjectId).ifPresent(s -> {
+			s.setStatus(newStatus);
+			s.setAttendanceEndTime(attendanceEndtime);
+			updateSubject(s);
+		});	
+	}
+	
+	
+	public void save(SubjectEntity sub) {
+		subjectRepo.save(sub);
+	}
 }

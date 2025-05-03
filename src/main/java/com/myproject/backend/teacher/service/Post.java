@@ -58,13 +58,13 @@ public class Post implements CommandLineRunner {
         sectionRepository.save(sect7);
         sectionRepository.save(sect8);
         
-        SubjectEntity subjectOfSect1 = SubjectEntity.builder().subjectCode("CC05").subjectDescription("Com 5").section(sect1).build();
-        SubjectEntity subjectOfSect2 = SubjectEntity.builder().subjectCode("PF1").subjectDescription("Event Driven").section(sect1).build();
+        SubjectEntity subjectOfSect1 = SubjectEntity.builder().subjectCode("CC05").subjectDescription("Com 5").section(sect1).status("Closed").build();
+        SubjectEntity subjectOfSect2 = SubjectEntity.builder().subjectCode("PF1").subjectDescription("Event Driven").section(sect1).status("Closed").build();
         
-        SubjectEntity subjectOfSect3 = SubjectEntity.builder().subjectCode("CCsdf05").subjectDescription("ss 5").section(sect3).build();
-        SubjectEntity subjectOfSect4 = SubjectEntity.builder().subjectCode("PFsdf1").subjectDescription("ss Driven").section(sect3).build();
-        SubjectEntity subjectOfSect5 = SubjectEntity.builder().subjectCode("CsdC05").subjectDescription("Cs 5").section(sect3).build();
-        SubjectEntity subjectOfSect6 = SubjectEntity.builder().subjectCode("PdF1").subjectDescription("Est Driven").section(sect3).build();
+        SubjectEntity subjectOfSect3 = SubjectEntity.builder().subjectCode("CCsdf05").subjectDescription("ss 5").section(sect3).status("Closed").build();
+        SubjectEntity subjectOfSect4 = SubjectEntity.builder().subjectCode("PFsdf1").subjectDescription("ss Drivenz").section(sect3).status("Open").build();
+        SubjectEntity subjectOfSect5 = SubjectEntity.builder().subjectCode("CsdC05").subjectDescription("Cs 5").section(sect3).status("Closed").build();
+        SubjectEntity subjectOfSect6 = SubjectEntity.builder().subjectCode("PdF1").subjectDescription("Est Driven").section(sect3).status("Closed").build();
         
         subjectRepository.save(subjectOfSect1);
         subjectRepository.save(subjectOfSect2);
