@@ -5,16 +5,20 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.TeacherAccount;
 import com.myproject.backend.teacher.service.TeacherAccountService;
+import com.myproject.teacher.ui.view.dashboard.subjectDataPage.SubjectView;
+import com.myproject.teacher.ui.view.dashboard.subjectDataPage.ValidationMessage;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +42,7 @@ public class DashboardView extends VerticalLayout {
 	private Div bodyWrapper;
 	private Div body;
 
-	private Grid<SectionDTO> sectionsInGrid;
+	//private Grid<SectionDTO> sectionsInGrid;
 	private List<SectionDTO> teacherSectionsHandled = new LinkedList<>();
 
 	public DashboardView(TeacherAccountService teacherAccService) {
@@ -58,6 +62,10 @@ public class DashboardView extends VerticalLayout {
 		add(header, bodyWrapper);
 	}
 
+	
+	Grid<SectionDTO> sectionsInGrid = new Grid<>(SectionDTO.class, false);
+    Editor<SectionDTO> editor = sectionsInGrid.getEditor();
+     
 	private void bodyConfig() {
 		body = new Div();
 		body.getStyle().set("border", "2px solid black").set("border-radius", "8px").set("padding", "20px")
@@ -71,10 +79,77 @@ public class DashboardView extends VerticalLayout {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 
-		sectionsInGrid = new Grid<>(SectionDTO.class, false);
-		sectionsInGrid.addColumn(SectionDTO::getSectionName).setHeader("Section");
-		sectionsInGrid.addColumn(SectionDTO::getCourse).setHeader("Course");
-		sectionsInGrid.addColumn(SectionDTO::getDateAdded).setHeader("Date Added");
+		// --------------------------------
+		ValidationMessage sectionValidationMessage = new ValidationMessage();
+        ValidationMessage courseValidationMessage = new ValidationMessage();
+		
+        
+        Grid.Column<SectionDTO> sectionColumn = sectionsInGrid.addColumn(SectionDTO::getSectionName)
+        		.setHeader("Section")
+                .setWidth("100px");
+        
+        Grid.Column<SectionDTO> courseColumn = sectionsInGrid.addColumn(SectionDTO::getCourse)
+                .setHeader("Course")
+                .setWidth("100px");
+        
+        sectionsInGrid.addColumn(SectionDTO::getDateAdded)
+                .setHeader("Date added")
+                .setWidth("100px");
+        
+        Grid.Column<SectionDTO> editColumn = sectionsInGrid.addComponentColumn(section -> {
+        	
+            Button editButton = new Button("Edit");
+            editButton.addClickListener(e -> {
+                if (editor.isOpen())
+                    editor.cancel();
+                sectionsInGrid.getEditor().editItem(section);
+            });
+            return editButton;
+            
+        }).setWidth("150px").setFlexGrow(0);
+        
+        
+        Binder<SectionDTO> binder = new Binder<>(SectionDTO.class);
+        editor.setBinder(binder);
+        editor.setBuffered(true);
+
+        TextField sectionField = new TextField();
+        sectionField.setWidthFull();
+        binder.forField(sectionField)
+                .asRequired("Section name must not be empty")
+                .withStatusLabel(sectionValidationMessage)
+                .bind(SectionDTO::getSectionName, SectionDTO::setSectionName);
+        sectionColumn.setEditorComponent(sectionField);
+        
+        TextField courseField = new TextField();
+        courseField.setWidthFull();
+        binder.forField(courseField).asRequired("Course name must not be empty")
+                .withStatusLabel(courseValidationMessage)
+                .bind(SectionDTO::getCourse, SectionDTO::setCourse);
+        courseColumn.setEditorComponent(courseField);
+        
+        Button saveButton = new Button("Save", e -> editor.save());
+        Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
+                e -> editor.cancel());
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_ERROR);
+        HorizontalLayout actions = new HorizontalLayout(saveButton,
+                cancelButton);
+        actions.setPadding(false);
+        editColumn.setEditorComponent(actions);
+        
+        editor.addCancelListener(e -> {
+            sectionValidationMessage.setText("");
+            courseValidationMessage.setText("");
+        });
+
+        
+		// ---------------------------------------
+		
+		//sectionsInGrid = new Grid<>(SectionDTO.class, false);
+		//sectionsInGrid.addColumn(SectionDTO::getSectionName).setHeader("Section");
+		//sectionsInGrid.addColumn(SectionDTO::getCourse).setHeader("Course");
+		//sectionsInGrid.addColumn(SectionDTO::getDateAdded).setHeader("Date Added");
 		sectionsInGrid.setWidthFull();
 		sectionsInGrid.setHeight("100%");
 		sectionsInGrid.setEmptyStateText("Your list of sections will appear here.");
@@ -127,7 +202,7 @@ public class DashboardView extends VerticalLayout {
 
 					UI.getCurrent().getSession().setAttribute("idOfSelectedSection", selectedSection.getId());
 					
-					UI.getCurrent().navigate("teacher/dashboard/subject/" + sectionName);
+					UI.getCurrent().navigate(SubjectView.class, sectionName);
 				} catch (InterruptedException e1) {
 
 					e1.printStackTrace();

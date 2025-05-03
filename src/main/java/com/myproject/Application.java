@@ -1,6 +1,8 @@
 package com.myproject;
 
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,8 +10,10 @@ import org.springframework.context.annotation.Bean;
 
 import java.time.Clock;
 
+@Push
 @SpringBootApplication
 @Theme("default")
+@CssImport("./styles/shared-styles.css")  // Include any other styles or resources
 public class Application implements AppShellConfigurator {
 
     private static final long serialVersionUID = 1L;

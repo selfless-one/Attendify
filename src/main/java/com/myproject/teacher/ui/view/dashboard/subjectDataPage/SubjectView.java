@@ -3,6 +3,7 @@ package com.myproject.teacher.ui.view.dashboard.subjectDataPage;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.charts.model.style.FontWeight;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -12,17 +13,21 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.entity.TeacherAccount;
-import com.myproject.backend.teacher.repository.SubjectRepository;
 import com.myproject.backend.teacher.service.SectionService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.dashboard.DashboardHeader;
+import com.myproject.teacher.ui.view.dashboard.SectionDTO;
+import com.myproject.teacher.ui.view.dashboard.SectionDialog;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +45,11 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
     private final SectionService sectionService;
     private final SubjectService subjectService;
 
-    private TeacherAccount acc;
+    private TeacherAccount teacherAccount;
+    private SectionEntity selectedSection;
     private String sessionedEmail;
-    private String sectionName;
+    private Integer idOfSelectedSection;
+    private String sectionNameParam;
 
     private HorizontalLayout header;
     private Div bodyWrapper;
@@ -50,6 +57,8 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
 
     private Grid<Subject> subjectGrid;
     private List<Subject> subjects = new LinkedList<>();
+    
+    
 
     public SubjectView(TeacherAccountService teacherAccService, SectionService sectionService, SubjectService subjectService) {
         this.teacherAccService = teacherAccService;
@@ -62,21 +71,32 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
     }
 
     @Override
-    public void setParameter(BeforeEvent event, String sectionName) {
-        this.sectionName = sectionName;
+    public void setParameter(BeforeEvent event, String sectionNameParam) {
+        this.sectionNameParam = sectionNameParam;
 
         sessionedEmail = (String) UI.getCurrent().getSession().getAttribute("teacher_email");
         if (sessionedEmail == null) {
             UI.getCurrent().navigate("teacher/login");
             return;
         }
+        
+        idOfSelectedSection = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSection");
+        
+        if (idOfSelectedSection == 0) {
+        	 UI.getCurrent().navigate("teacher/login");
+             return;
+        }
+        selectedSection = sectionService.getAccountById(idOfSelectedSection).orElseThrow();
+        
+        
+        
 
-        this.acc = teacherAccService.getAccountByEmail(sessionedEmail);
+        this.teacherAccount = teacherAccService.getAccountByEmail(sessionedEmail);
         buildUI();
     }
 
     private void buildUI() {
-        header = new DashboardHeader(acc);
+        header = new DashboardHeader(teacherAccount);
         bodyConfig();
         add(header, bodyWrapper);
     }
@@ -101,7 +121,7 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
         
         // Section label
         Span labelText = new Span("Section:");
-        Span sectionLabelText = new Span(sectionName);
+        Span sectionLabelText = new Span(sectionNameParam);
         
         labelText.getStyle().set("font-size", "25px")
         .set("margin-left", "6px");
@@ -128,12 +148,41 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
         topBar.setJustifyContentMode(JustifyContentMode.BETWEEN);
         
         subjectGrid = new Grid<>(Subject.class, false);
+        
         subjectGrid.addColumn(Subject::getSubjectCode).setHeader("Subject Code");
         subjectGrid.addColumn(Subject::getSubjectDescription).setHeader("Description");
         subjectGrid.addColumn(Subject::getDateAdded).setHeader("Date Added");
+        subjectGrid.addColumn(createStatusComponentRenderer()).setHeader("Status");
+        
+
+        subjectGrid.addSelectionListener(selection -> {
+            Optional<Subject> selectedSub = selection.getFirstSelectedItem();
+            
+            selectedSub.ifPresent(subject -> {
+            	
+                System.out.println("Selected subject: " + subject.getSubjectDescription());
+
+                try {
+					Thread.sleep(2000);
+					
+					showOpenAttendifyDialog(subject.getId());
+					
+				} catch (InterruptedException e1) {
+
+					e1.printStackTrace();
+				}
+                
+                
+                
+                
+                
+            });
+        });
+        
+        
         subjectGrid.setWidthFull();
         subjectGrid.setHeight("100%");
-        subjectGrid.setEmptyStateText("Your list of subject for section " + sectionName + " will appear here.");
+        subjectGrid.setEmptyStateText("Your list of subject for section " + sectionNameParam + " will appear here.");
         subjectGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
         subjectGrid.setPartNameGenerator(subject -> !subject.getSubjectCode().isEmpty() ? "high-rating" : "low-rating");
@@ -161,13 +210,7 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
             subjectGrid.setItems(filtered);
         });
 
-        subjectGrid.addSelectionListener(selection -> {
-            Optional<Subject> selected = selection.getFirstSelectedItem();
-            selected.ifPresent(subject -> {
-                System.out.println("Selected subject: " + subject.getSubjectDescription());
-                UI.getCurrent().navigate("teacher/signup/"); // You might want to pass more data here
-            });
-        });
+        
 
         subjectGrid.getElement().getStyle().set("position", "relative");
         subjectGrid.getElement().executeJs(
@@ -185,7 +228,7 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
         layout.setSizeFull();
         body.add(layout);
 
-        Button addSubjectnBtn = new Button("Add Subject", e -> showAddSubjectDialog());
+        Button addSubjectnBtn = new Button("Add Subject", evt -> showAddSubjectDialog());
         addSubjectnBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         addSubjectnBtn.getStyle()
                 .set("position", "absolute")
@@ -210,7 +253,23 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
 
         bodyWrapper.add(body, addSubjectnBtn);
     }
+    
+    
+    // ---------------------------------- grid status field util
+    private final SerializableBiConsumer<Span, Subject> statusComponentUpdater = (
+            span, subject) -> {
+        boolean isOpen = "Open".equals(subject.getStatus());
+        String theme = String.format("badge %s",
+                isOpen ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(subject.getStatus());
+    };
+    
+    private ComponentRenderer<Span, Subject> createStatusComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, statusComponentUpdater);
+    }
 
+    // --------------------------------------------
     private void loadSubjectData() {
        
         subjects.clear();
@@ -219,22 +278,47 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
         Integer id = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSection");
         
         subjectService.getAllSubjectBySectionID(id).forEach(subs -> {
-        	 subjects.add(new Subject(subs.getSubjectCode(), subs.getSubjectDescription(), null));
+        	 subjects.add(new Subject(subs.getId(), subs.getSubjectCode(), subs.getSubjectDescription(), null, subs.getStatus()));
         });
         
         subjectGrid.setItems(subjects);
     }
 
-    private void showAddSubjectDialog() {
-        SubjectDialog dialog = new SubjectDialog(this::addSubject, teacherAccService, acc);
-        dialog.open();
-    }
 
-    private void addSubject(String subjectCode, String subjectDesc) {
-        LocalDateTime now = LocalDateTime.now();
-        String formattedDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Subject newSubject = new Subject(subjectCode, subjectDesc, formattedDateTime);
-        subjects.add(newSubject);
-        subjectGrid.setItems(subjects); // update grid
+    private void showOpenAttendifyDialog(Integer selectedSubjectId) {
+		OpenTheAttendanceDialog dialog = new OpenTheAttendanceDialog(this::updateSubjectStatus, selectedSubjectId, subjectService);
+		dialog.open();
+	}
+    
+    private void updateSubjectStatus() {
+    	
+    	 subjects.clear();
+         Integer id = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSection");
+         
+         subjectService.getAllSubjectBySectionID(id).forEach(subs -> {
+         	 subjects.add(new Subject(subs.getId(), subs.getSubjectCode(), subs.getSubjectDescription(), null, subs.getStatus()));
+         });
+         
+         subjectGrid.setItems(subjects);
+    	
     }
+    
+    
+    private void showAddSubjectDialog() {
+		SubjectDialog dialog = new SubjectDialog((subjectCode, subjectDesc) -> addSubject(subjectCode, subjectDesc),
+				sectionService, selectedSection);
+		dialog.open();
+	}
+    
+    private void addSubject(String subjectCode, String subjectDesc) {
+		//LocalDateTime now = LocalDateTime.now();
+		//String formattedDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		//Subject newSubject = new Subject(subjectCode, subjectDesc, formattedDateTime, "Closed");
+		
+		//subjects.add(newSubject);
+		//subjectGrid.setItems(subjects);
+    	loadSubjectData();
+    }
+    
+    
 }

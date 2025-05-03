@@ -6,6 +6,8 @@ import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -23,13 +25,19 @@ public class SectionDialog extends Dialog {
         setModal(true);
         setDraggable(true);
         
+        H2 headline = new H2("Add section");
+        headline.addClassName("draggable");
+        headline.getStyle()
+                .set("cursor", "move")
+                .set("padding", "var(--lumo-space-m) 0");
+        
         TextField sectionField = new TextField("Section name");
         TextField courseField = new TextField("Course");
 
         sectionField.setRequiredIndicatorVisible(true);
         courseField.setRequiredIndicatorVisible(true);
 
-        VerticalLayout layout = new VerticalLayout(sectionField, courseField);
+        VerticalLayout layout = new VerticalLayout(headline, sectionField, courseField);
         layout.setPadding(false);
         layout.setSpacing(false);
         layout.setAlignItems(FlexComponent.Alignment.STRETCH);
@@ -38,6 +46,7 @@ public class SectionDialog extends Dialog {
         Button saveButton = new Button("Save", e -> {
             boolean sectionIsEmpty = sectionField.isEmpty();
             boolean courseIsEmpty = courseField.isEmpty();
+            
             sectionField.setInvalid(sectionIsEmpty);
             courseField.setInvalid(courseIsEmpty);
 
@@ -48,9 +57,10 @@ public class SectionDialog extends Dialog {
                 SectionEntity sec = SectionEntity.builder()
                 		.sectionName(sectionField.getValue())
                 		.course(courseField.getValue())
+                		.dateCreated(null)
                 		.build();
                 
-                
+
                 acc.getSections().add(sec);
                 tService.saveChanges(acc);
                 

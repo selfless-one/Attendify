@@ -1,0 +1,8 @@
+vaadin-dialog-overlay::part(header) {
+  background-color: #4460EF; /* Your desired color */
+}
+
+
+vaadin-button:hover {
+	cursor: pointer;
+}

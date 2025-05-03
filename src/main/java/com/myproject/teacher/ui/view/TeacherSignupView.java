@@ -13,7 +13,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-@CssImport("./techearsignupOverlay.css")
 @Route("teacher/signup")
 public class TeacherSignupView extends VerticalLayout {
 

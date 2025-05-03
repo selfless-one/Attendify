@@ -4,6 +4,7 @@ import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.dashboard.DashboardView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
@@ -14,6 +15,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @Route("teacher/login")
+@CssImport("./styles/shared-styles.css")
 public class TeacherLoginView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
@@ -35,7 +37,6 @@ public class TeacherLoginView extends VerticalLayout {
 		loginOverlay.setI18n(i18n);
 		loginOverlay.setTitle("Attendify");
 		loginOverlay.setDescription(null);
-		
 		
 		// --- Create ProgressBar ---
 		loadingBar = new ProgressBar();
@@ -113,12 +114,11 @@ public class TeacherLoginView extends VerticalLayout {
 			LumoUtility.FontWeight.SEMIBOLD,
 			LumoUtility.BorderRadius.MEDIUM,
 			LumoUtility.Padding.SMALL
-			
 		);
 		
 		// "#00838F" green minimalst
 		// "#00695C"
-		toggleBtn.getStyle().set("background-color", "#00695C");
+		toggleBtn.getStyle().set("background-color", "#4460EF");
 		toggleBtn.getStyle().set("color", "WHITE");
 		
 		
@@ -136,8 +136,6 @@ public class TeacherLoginView extends VerticalLayout {
 		add(loadingBar, loginOverlay);
 		loginOverlay.setOpened(true);
 		loginOverlay.getElement().setAttribute("no-autofocus", "");
-		//<theme-editor-local-classname>
-		addClassName("teacher-login-view-vertical-layout-1");
-getStyle().setHeight("100%");
+		
 	}
 }
