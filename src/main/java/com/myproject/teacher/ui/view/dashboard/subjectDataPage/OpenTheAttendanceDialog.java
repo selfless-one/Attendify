@@ -47,8 +47,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
 
 
-
-
 	private VerticalLayout headerLayout() {
 
 		Button closeButton = new Button(VaadinIcon.CLOSE.create());
@@ -308,8 +306,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 			scheduler.shutdownNow();
 		}
 	}
-
-
 
 	Button confirmBtn = new Button("Confirm");
 	Button cancelBtn = new Button("Cancel", evt -> this.close());
