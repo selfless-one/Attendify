@@ -18,10 +18,13 @@ import com.myproject.teacher.ui.view.TeacherLoginView;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -30,6 +33,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.timepicker.TimePicker.TimePickerI18n;
 import com.vaadin.flow.dom.Style.AlignItems;
+import com.vaadin.flow.dom.Style.BoxSizing;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -43,7 +47,28 @@ public class OpenTheAttendanceDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
 
 
+
+
 	private VerticalLayout headerLayout() {
+
+		Button closeButton = new Button(VaadinIcon.CLOSE.create());
+
+		closeButton.setAriaLabel("Close dialog");
+		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+
+		// Style to float in upper-right corner
+		closeButton.getStyle()
+		.set("color", "White")
+		.set("position", "absolute")
+		.set("top", "10px")
+		.set("right", "10px")
+		.set("z-index", "100")
+		.set("padding", "0")
+		.set("width", "24px")
+		.set("height", "24px")
+		.set("font-size", "12px");
+
+		closeButton.addClickListener(evt -> this.close());
 
 		H2 headline = new H2("Attendify");
 		headline.getStyle().set("padding", "var(--lumo-space-m) 0")
@@ -87,7 +112,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 		statusWrapper.setPadding(false);
 		statusWrapper.setMargin(false);
 
-		HorizontalLayout headlineWrapper = new HorizontalLayout(headline,statusWrapper);
+		HorizontalLayout headlineWrapper = new HorizontalLayout(closeButton, headline,statusWrapper);
 
 		headlineWrapper.setWidthFull();
 		headlineWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -121,15 +146,34 @@ public class OpenTheAttendanceDialog extends Dialog {
 		setModal(true);
 		setDraggable(true);
 
-		getHeader().add(headerLayout());
+		
 
+		
+		invokeDialog();
+
+
+
+	}
+
+
+	private void invokeDialog() {
+
+		getHeader().removeAll();
+		getFooter().removeAll();
+		removeAll();
+		
+		getHeader().add(headerLayout());
+		
 		if (subjectEnt.getStatus().equals("Closed")) {
 			add(contentLayout());
+			getFooter().add(footerLayout());
 		} else {
 			add(contentLayoutWhenStatusIsOpen());
+			getFooter().add(footerLayoutWhenStatusIsOpen());
 		}
 
-		getFooter().add(footerLayout());
+		
+
 	}
 
 	private boolean[] buttonIsClosed = {true};
@@ -224,12 +268,12 @@ public class OpenTheAttendanceDialog extends Dialog {
 			} else {
 				// Time's up
 				ui.access(() -> clock.setText("00:00:00"));
-				
+
 				subjectEnt.setStatus("Closed");
 				subjectServ.save(subjectEnt);
 				System.out.println("Time is up! Reloading page...");
 				ui.getPage().reload();
-				
+
 				scheduler.shutdown(); // Stop updating
 			}
 		}, 0, 1, TimeUnit.SECONDS); // update every 1 second
@@ -275,7 +319,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 		confirmBtn.addClickListener(evt -> {
 
-
 			boolean timePickerIsEmpty = timePicker.isEmpty();
 			boolean timePickerIsInvalid = timePicker.isInvalid();
 
@@ -297,6 +340,82 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 		return new HorizontalLayout(confirmBtn, cancelBtn);
 
+
+	}
+
+	private HorizontalLayout footerLayoutWhenStatusIsOpen() {
+
+		final Button viewBtn = new Button("View");
+		final Button closeAndResetBtn = new Button("Reset and Close");
+
+		viewBtn.getStyle()
+		.set("font-size", "14px")
+		.set("background-color", "#21a05d")
+		.set("border-radius", "10px")
+		.set("padding", "10px 20px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		viewBtn.getElement().getThemeList().add("primary");
+		viewBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);
+
+		closeAndResetBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		closeAndResetBtn.getStyle()
+		.set("font-size", "14px")
+		.set("border-radius", "10px")
+		.set("padding", "10px 20px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		closeAndResetBtn.getElement().getThemeList().add("primary");
+		closeAndResetBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);
+
+
+		viewBtn.addClickListener(evt -> {
+
+
+		});
+
+		closeAndResetBtn.addClickListener(evt -> {
+			confirmCloseAndResetDialog();
+		});
+
+		return new HorizontalLayout(viewBtn, closeAndResetBtn);
+	}
+
+
+	private void confirmCloseAndResetDialog() {
+
+		ConfirmDialog dialog = new ConfirmDialog();
+
+		dialog.setHeader("Reset & Close");
+		dialog.setText("Are you sure you want to close and reset "
+				+ "the ongoing attendance for subject CC05, section LFAU133A004?");
+
+		dialog.setCancelable(true);
+		dialog.addCancelListener(event -> dialog.close());
+
+		dialog.setConfirmText("Confirm");
+		dialog.setConfirmButtonTheme("error primary");
+		dialog.addConfirmListener(event -> {
+
+			subjectEnt.setStatus("Closed");
+			subjectServ.save(subjectEnt);
+			
+			subjectEnt = subjectServ.getById(IdOfSelectedSubject).get();
+
+			r.run();
+			invokeDialog();
+			dialog.close();
+			
+
+		});
+
+		dialog.open();
 
 	}
 
