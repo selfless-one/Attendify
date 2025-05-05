@@ -2,7 +2,7 @@ package com.myproject.backend.teacher.service;
 
 import org.springframework.stereotype.Service;
 
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.repository.TeacherAccountRepository;
 
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ public class TeacherAccountService {
         if (!myToken.equals(token)) return "Invalid token";
         
         return teacherAccountRepo.findByEmail(email).map(acc -> {
-        	teacherAccountRepo.save(TeacherAccount.builder().email(email).password(password).build());
+        	teacherAccountRepo.save(TeacherAccountEntity.builder().email(email).password(password).build());
             return "Account created successfully";
         	
         }).orElse("Email already taken");
@@ -39,12 +39,12 @@ public class TeacherAccountService {
                 .orElse("Invalid credentials");
     }
 
-    public TeacherAccount getAccountByEmail(String email) {
+    public TeacherAccountEntity getAccountByEmail(String email) {
         return teacherAccountRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
 
-    public void saveChanges(TeacherAccount acc) {
+    public void saveChanges(TeacherAccountEntity acc) {
         teacherAccountRepo.save(acc);
     }
 

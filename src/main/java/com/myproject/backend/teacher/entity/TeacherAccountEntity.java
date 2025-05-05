@@ -24,7 +24,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "teacher_credential")
-public class TeacherAccount {
+public class TeacherAccountEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

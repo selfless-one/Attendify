@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.repository.SectionRepository;
 
 import lombok.AllArgsConstructor;
@@ -19,12 +19,12 @@ public class SectionService {
 	
 	private final SectionRepository sectionRepo;
 	
-	public List<SectionEntity> getAllSectionByTeacher(TeacherAccount teacherAccount) {
+	public List<SectionEntity> getAllSectionByTeacher(TeacherAccountEntity teacherAccount) {
 		
 		return sectionRepo.findByTeacher(teacherAccount);
 	}
 	
-	public List<SubjectEntity> getAllSubjectOfSection(TeacherAccount teacherAccount) {
+	public List<SubjectEntity> getAllSubjectOfSection(TeacherAccountEntity teacherAccount) {
 		
 	    List<SectionEntity> sections = getAllSectionByTeacher(teacherAccount);
 	    List<SubjectEntity> subjects = new LinkedList<>();
@@ -45,5 +45,13 @@ public class SectionService {
 		sectionRepo.save(sectionEntity);
 	}
 
+	
+	public List<SectionEntity> getSectionByName(String sectionName) {
+		return sectionRepo.findBySectionName(sectionName);
+	}
+	
+	public boolean sectionNameExists(String sectionName) {
+		return sectionRepo.existsBySectionName(sectionName);
+	}
 	
 }

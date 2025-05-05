@@ -2,6 +2,8 @@ package com.myproject.backend.teacher.entity;
 
 import java.util.List;
 
+import com.myproject.backend.student.entity.StudentAccountEntity;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -39,9 +42,11 @@ public class SectionEntity {
 	
 	@ManyToOne
 	@JoinColumn(name = "teacher_id")
-	private TeacherAccount teacher;
+	private TeacherAccountEntity teacher;
 	
 	@OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<SubjectEntity> subjects;
+
+
 	
 }
