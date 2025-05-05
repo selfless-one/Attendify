@@ -15,6 +15,7 @@ import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.repository.SubjectRepository;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
+import com.myproject.teacher.ui.view.dashboard.subjectDataPage.attendifiedStudent.StudentAttendifiedView;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -372,6 +373,13 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 
 		viewBtn.addClickListener(evt -> {
+			
+//			UI.getCurrent().getPage().executeJs("window.open($0, '_blank')", 
+//				    StudentAttendifiedView.class.getAnnotation(Route.class).value());
+			
+			UI.getCurrent().getSession().setAttribute("subjectEntity", subjectEnt);
+			
+			UI.getCurrent().getPage().executeJs("window.open('student/attendified/live', '_blank')");
 
 
 		});

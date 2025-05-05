@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.myproject.backend.teacher.entity.StudentAttentifiedEntity;
+import com.myproject.backend.teacher.entity.SubjectEntity;
+import com.myproject.backend.teacher.service.SubjectService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -32,56 +35,72 @@ public class StudentAttendifiedView extends Div {
 
 
 
-	StudentAttentifiedEntity[] studMock = {
-
-			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build(),
-
-			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build(),
-
-			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build(),
-
-			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
-			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build()
-	};
+//	StudentAttentifiedEntity[] studMock = {
+//
+//			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build(),
+//
+//			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build(),
+//
+//			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build(),
+//
+//			StudentAttentifiedEntity.builder().studentNumber("UA202200305").surname("Razonable").firstname("Rowel").course("BSIT").email("razonabler31@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA202330433").surname("Chiong").firstname("Joriz").course("BSIT").email("chiong23@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA434343432").surname("Boncales").firstname("Brytch").course("BSIT").email("bonccales232@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA203223434").surname("De guzman").firstname("Errol").course("BSIT").email("deguzman@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA220038").surname("Laconsay").firstname("Reymart").course("BSIT").email("laconsay@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2232424445").surname("Dalman").firstname("Flynn").course("BSIS").email("flynn@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA201132222").surname("Padua").firstname("Angel").course("BSIT").email("angelPadua23gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("UA2023113132").surname("Merca").firstname("Randy").course("BSIT").email("randymerca@gmail.com").build(),
+//			StudentAttentifiedEntity.builder().studentNumber("U232233333").surname("Ramos").firstname("Kim").course("BSIT").email("ra@gmail.com").build()
+//	};
 
 
 	private Grid<StudentAttentifiedEntity> studentsAttendifiedGrid;
-	private List<StudentAttentifiedEntity> studentsAttendified = Arrays.asList(studMock);
+	private List<StudentAttentifiedEntity> studentsAttendified; // = Arrays.asList(studMock);
 
+	private SubjectEntity subjectEntity;
+	private final SubjectService subjectService;
 
-	public StudentAttendifiedView() {
+	
+	private void getStudentsAttendified() {
 
+		subjectEntity = subjectService.getById(subjectEntity.getId()).get();		
+		studentsAttendified = subjectEntity.getSAttentifiedEntity();
+		
+	}
+	
+	public StudentAttendifiedView(SubjectService subjectService) {
+		
+		this.subjectService = subjectService;
+		
+		subjectEntity = (SubjectEntity) UI.getCurrent().getSession().getAttribute("subjectEntity");
+		
+		getStudentsAttendified();
+		
 		studentsAttendifiedGrid = new Grid<>();
 
 		studentsAttendifiedGrid.setHeight("800px");

@@ -21,7 +21,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.service.SectionService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
@@ -45,7 +45,7 @@ public class SubjectView extends VerticalLayout implements HasUrlParameter<Strin
     private final SectionService sectionService;
     private final SubjectService subjectService;
 
-    private TeacherAccount teacherAccount;
+    private TeacherAccountEntity teacherAccount;
     private SectionEntity selectedSection;
     private String sessionedEmail;
     private Integer idOfSelectedSection;

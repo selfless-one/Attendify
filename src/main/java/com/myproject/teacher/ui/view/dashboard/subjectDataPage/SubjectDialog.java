@@ -2,7 +2,7 @@ package com.myproject.teacher.ui.view.dashboard.subjectDataPage;
 
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.service.SectionService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.vaadin.flow.component.button.Button;

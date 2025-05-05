@@ -5,7 +5,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.UI;
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 
 public class DashboardHeader extends HorizontalLayout {
 
@@ -14,7 +14,7 @@ public class DashboardHeader extends HorizontalLayout {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DashboardHeader(TeacherAccount acc) {
+	public DashboardHeader(TeacherAccountEntity acc) {
         setWidth("600px");
         setJustifyContentMode(JustifyContentMode.BETWEEN);
         setDefaultVerticalComponentAlignment(Alignment.CENTER);

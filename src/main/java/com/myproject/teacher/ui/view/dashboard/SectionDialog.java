@@ -1,7 +1,7 @@
 package com.myproject.teacher.ui.view.dashboard;
 
 import com.myproject.backend.teacher.entity.SectionEntity;
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,7 +21,7 @@ public class SectionDialog extends Dialog {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public SectionDialog(BiConsumer<String, String> onSave, TeacherAccountService tService, TeacherAccount acc) {
+	public SectionDialog(BiConsumer<String, String> onSave, TeacherAccountService tService, TeacherAccountEntity acc) {
         setModal(true);
         setDraggable(true);
         

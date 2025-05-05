@@ -15,7 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-import com.myproject.backend.teacher.entity.TeacherAccount;
+import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.dashboard.subjectDataPage.SubjectView;
 import com.myproject.teacher.ui.view.dashboard.subjectDataPage.ValidationMessage;
@@ -34,7 +34,7 @@ public class DashboardView extends VerticalLayout {
 
 	private final TeacherAccountService teacherAccService;
 
-	private final TeacherAccount teacherAccount;
+	private final TeacherAccountEntity teacherAccount;
 
 	private final String sessionedEmail;
 
