@@ -4,6 +4,7 @@ import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.dashboard.DashboardView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.login.LoginI18n;
@@ -38,6 +39,17 @@ public class TeacherLoginView extends VerticalLayout {
 		loginOverlay.setTitle("Attendify");
 		loginOverlay.setDescription(null);
 		
+		
+		loginOverlay.addForgotPasswordListener(forgot -> {
+
+			ConfirmDialog walapa = new ConfirmDialog();
+
+			walapa.setText("wala pa to sir");
+			walapa.setConfirmText("ok");
+			walapa.addConfirmListener(e -> walapa.close());
+			walapa.open();
+		});
+
 		// --- Create ProgressBar ---
 		loadingBar = new ProgressBar();
 		loadingBar.setIndeterminate(true);
@@ -110,10 +122,14 @@ public class TeacherLoginView extends VerticalLayout {
 		// Student toggle button
 		Button toggleBtn = new Button("I am Teacher");
 		toggleBtn.addClassNames(
+			LumoUtility.Margin.Top.MEDIUM,
 			LumoUtility.Margin.Top.SMALL,
 			LumoUtility.FontWeight.SEMIBOLD,
 			LumoUtility.BorderRadius.MEDIUM,
-			LumoUtility.Padding.SMALL
+			LumoUtility.Padding.SMALL,
+			LumoUtility.Width.AUTO,
+			LumoUtility.Height.SMALL,
+			LumoUtility.FontSize.SMALL
 		);
 		
 		// "#00838F" green minimalst

@@ -37,6 +37,8 @@ public class TeacherSignupView extends VerticalLayout {
 		LoginOverlay loginOverlay = new LoginOverlay();
 		loginOverlay.setI18n(i18n);
 		loginOverlay.getCustomFormArea().add(tokenField);
+		
+		loginOverlay.setForgotPasswordButtonVisible(false);
 
 		loginOverlay.setTitle("Attendify");
 		loginOverlay.setDescription(null);
@@ -88,6 +90,7 @@ public class TeacherSignupView extends VerticalLayout {
 		// Sign up clickable link
 		Anchor signUpLink = new Anchor("teacher/login", "Already have an account? Log in");
 		signUpLink.addClassNames(
+			LumoUtility.Margin.Top.MEDIUM,
 		    LumoUtility.TextAlignment.CENTER,
 		    LumoUtility.FontSize.SMALL,
 		    LumoUtility.Margin.NONE,
@@ -98,14 +101,19 @@ public class TeacherSignupView extends VerticalLayout {
 		// Student toggle button
 		Button toggleBtn = new Button("I am Teacher");
 		toggleBtn.addClassNames(
-			LumoUtility.Margin.Top.SMALL,
-			LumoUtility.FontWeight.SEMIBOLD,
-			LumoUtility.BorderRadius.MEDIUM,
-			LumoUtility.Padding.SMALL,
-			LumoUtility.TextColor.PRIMARY
+				LumoUtility.Margin.Top.MEDIUM,
+				LumoUtility.Margin.Top.SMALL,
+				LumoUtility.FontWeight.SEMIBOLD,
+				LumoUtility.BorderRadius.MEDIUM,
+				LumoUtility.Padding.SMALL,
+				LumoUtility.Width.AUTO,
+				LumoUtility.Height.SMALL,
+				LumoUtility.FontSize.SMALL
 		);
 		
-
+		toggleBtn.getStyle().set("background-color", "#4460EF");
+		toggleBtn.getStyle().set("color", "WHITE");
+		
 		toggleBtn.addClickListener(e -> {
 			
 			UI.getCurrent().navigate("student/login");
