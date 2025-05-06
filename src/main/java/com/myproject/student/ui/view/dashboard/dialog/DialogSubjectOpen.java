@@ -2,8 +2,10 @@ package com.myproject.student.ui.view.dashboard.dialog;
 
 import com.myproject.backend.student.entity.StudentAccountEntity;
 import com.myproject.backend.student.service.StudentAccountService;
+import com.myproject.backend.teacher.entity.StudentAttentifiedEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.service.SubjectService;
+import com.myproject.student.ui.view.StudentLoginView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,12 +26,24 @@ public class DialogSubjectOpen extends Dialog {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	
-	private StudentAccountEntity studentAccount;
-	private StudentAccountService studentAccountService;
 	private final SubjectService subjectService;
 	
+	private StudentAccountEntity studentAccount;
 	private SubjectEntity subjectEntity;
+	
+	private String studentUsernameSessioned = (String) UI.getCurrent().getSession().getAttribute("studentUsername");
+	private Integer idOfSelectedSubject = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSubject");
+	
+	private Runnable r;
+	
+	private TextField studentNumberF  = new TextField("Student number");
+	private TextField surnameF  = new TextField("Surname");
+	private TextField firstnameF  = new TextField("Firstname");
+	private TextField courseF  = new TextField("Course");
+	private TextField emailF  = new TextField("Email");
+
+	private Button submitBtn;
+	private Button cancelBtn;
 	
 	private VerticalLayout headerLayout() {
 
@@ -105,36 +119,26 @@ public class DialogSubjectOpen extends Dialog {
 
 	}
 
-	private Runnable r;
-	private Integer idOfSelectedSubject = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSubject");
-
 	public DialogSubjectOpen(Runnable r, 
 			SubjectEntity subjectEntity, 
 			SubjectService subjectService,
 			StudentAccountService studentAccountService) {
 
 		this.r = r;
-		//this.studentAccount = studentAccountEntity;
-		//this.studentAccountService = studentAccountService;
-		
 		this.subjectEntity = subjectEntity;
 		this.subjectService = subjectService;
 		
-		var studentNumberSessioned = (String) UI.getCurrent().getSession().getAttribute("student_number");
-		if (studentNumberSessioned == null) {
-			
-			UI.getCurrent().navigate("student/login");
+		if (studentUsernameSessioned == null || idOfSelectedSubject == 0) {
+			UI.getCurrent().navigate(StudentLoginView.class);
 			return;
 			
 		} else {
-			studentAccount = studentAccountService.getAccountByStudentNumber(studentNumberSessioned);
+			studentAccount = studentAccountService.getAccountByUsername(studentUsernameSessioned);
 		}
 		
-		
-		
 		setModal(true);
+		setCloseOnOutsideClick(false);
 		setDraggable(true);
-
 		invokeDialog();
 	}
 
@@ -150,15 +154,6 @@ public class DialogSubjectOpen extends Dialog {
 		getFooter().add(footerLayoutWhenStatusIsOpen());
 	}
 	
-	TextField studentNumberF  = new TextField("Student number");
-	TextField surnameF  = new TextField("Surname");
-	TextField firstnameF  = new TextField("Firstname");
-	TextField courseF  = new TextField("Course");
-	TextField emailF  = new TextField("Email");
-
-	Button submitBtn;
-	Button cancelBtn;
-	
 	private VerticalLayout contentLayoutWhenStatusIsOpen() {
 	
 		studentNumberF.setRequired(true);
@@ -170,9 +165,8 @@ public class DialogSubjectOpen extends Dialog {
 		studentNumberF.setValue(studentAccount.getStudentNumber());
 		surnameF.setValue(studentAccount.getSurname());
 		firstnameF.setValue(studentAccount.getFirstname());
-		courseF.setValue(studentAccount.getCourse());
-		emailF.setValue(studentAccount.getEmail());
-		
+		//courseF.setValue(studentAccount.getCourse());
+		//emailF.setValue(studentAccount.getEmail());
 		
 		VerticalLayout layout = new VerticalLayout(studentNumberF, surnameF, firstnameF, courseF, emailF);
 		
@@ -182,9 +176,6 @@ public class DialogSubjectOpen extends Dialog {
 		layout.getStyle().set("width", "18rem").set("max-width", "100%");
 
 	    return layout;
-		
-		
-		
 	}
 
 	private HorizontalLayout footerLayoutWhenStatusIsOpen() {
@@ -220,41 +211,41 @@ public class DialogSubjectOpen extends Dialog {
 
 		submitBtn.addClickListener(evt -> {
 			
-			if (studentNumberF.getValue().isBlank() || studentNumberF.getValue().isEmpty()) {
+			if (studentNumberF.getValue().isBlank()) {
 				studentNumberF.setInvalid(true);
 				studentNumberF.setErrorMessage("required");
 			}
 			
-			if (surnameF.getValue().isBlank() || surnameF.getValue().isEmpty()) {
+			if (surnameF.getValue().isBlank()) {
 				surnameF.setInvalid(true);
 				surnameF.setErrorMessage("required");
 			}
 			
-			if (firstnameF.getValue().isBlank() || firstnameF.getValue().isEmpty()) {
+			if (firstnameF.getValue().isBlank()) {
 				firstnameF.setInvalid(true);
 				firstnameF.setErrorMessage("required");
 			}
 			
-			if (courseF.getValue().isBlank() || courseF.getValue().isEmpty()) {
+			if (courseF.getValue().isBlank()) {
 				courseF.setInvalid(true);
 				courseF.setErrorMessage("required");
 			}
 			
-			if (emailF.getValue().isBlank() || emailF.getValue().isEmpty()) {
+			if (emailF.getValue().isBlank()) {
 				emailF.setInvalid(true);
 				emailF.setErrorMessage("required");
 			}
 			
-			if (!studentNumberF.getValue().isBlank() && !studentNumberF.getValue().isEmpty() &&
-				!surnameF.getValue().isBlank() && !surnameF.getValue().isEmpty() &&
-				!firstnameF.getValue().isBlank() && !firstnameF.getValue().isEmpty() &&
-				!courseF.getValue().isBlank() && !courseF.getValue().isEmpty() &&
-				!emailF.getValue().isBlank() && !emailF.getValue().isEmpty()) {
+			if (!studentNumberF.getValue().isBlank() &&
+				!surnameF.getValue().isBlank() &&
+				!firstnameF.getValue().isBlank() &&
+				!courseF.getValue().isBlank() &&
+				!emailF.getValue().isBlank()) {
 				
 				
 				System.out.println("go lang");
 				
-				
+				confirmSubmissionDialog();
 				
 			}
 			
@@ -265,35 +256,48 @@ public class DialogSubjectOpen extends Dialog {
 		return new HorizontalLayout(submitBtn, cancelBtn);
 	}
 
-
-	private void confirmCloseAndResetDialog() {
+	private ConfirmDialog confirmSubmissionDialog() {
 
 		ConfirmDialog dialog = new ConfirmDialog();
 
 		dialog.setHeader("Confirm submission");
 		dialog.setText("Are all details correct?");
-
 		dialog.setCancelable(true);
 		dialog.addCancelListener(event -> dialog.close());
-
 		dialog.setConfirmText("Confirm");
 		dialog.setConfirmButtonTheme("error primary");
 		dialog.addConfirmListener(event -> {
 
-//			subjectEnt.setStatus("Closed");
-//			subjectServ.save(subjectEnt);
-//			
-//			subjectEnt = subjectServ.getById(IdOfSelectedSubject).get();
+			// double check if status is not closed
+			if (subjectEntity.getStatus().equals("Open")) {
 
-			r.run();
-			invokeDialog();
-			dialog.close();
+
+				StudentAttentifiedEntity attendifyToSave = StudentAttentifiedEntity.builder()
+						.studentNumber(studentNumberF.getValue())
+						.surname(surnameF.getValue())
+						.firstname(firstnameF.getValue())
+						.course(courseF.getValue())
+						.email(emailF.getValue())
+						.build();
+
+				subjectEntity.getSAttentifiedEntity().add(attendifyToSave);
+				subjectService.save(subjectEntity);
+
+				// maybe void
+				r.run();
+				//	invokeDialog();
+				dialog.close();
+				this.close();
+
+			} else {
+				new DialogSubjectClose();
+			}
+	
 			
-
 		});
-
+		
 		dialog.open();
-
+		return dialog;
 	}
 
 }

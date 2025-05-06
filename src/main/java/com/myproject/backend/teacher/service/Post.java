@@ -31,12 +31,13 @@ public class Post implements CommandLineRunner {
 		
 		StudentAccountEntity student1 = StudentAccountEntity.builder()
 				.studentNumber("UA202200305")
-				.email("razonabler31@gmail.com")
+				//.email("razonabler31@gmail.com")
 				.password("rowel123")
 				.firstname("Rowel")
 				.surname("Razonable")
-				.course("BSIT")
+				//.course("BSIT")
 				.sectionName("LFAU133N001")
+				.username("rowel123")
 				.build();
 			
 		studentAccountRepository.save(student1);

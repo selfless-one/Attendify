@@ -26,38 +26,50 @@ public class StudentAccountService {
 	}
 	
 	
-	public boolean authenticate(String studentNumber, String password) {
+	public boolean authenticate(String username, String password) {
 		
-		return sAccountRepository.findByStudentNumber(studentNumber).map(acc -> {
+		return sAccountRepository.findByUsername(username).map(acc -> {
 			return acc.getPassword().equals(password) ? true : false;
 		}).orElse(false);
 		
 	}
 	
-	public StudentAccountEntity getAccountByStudentNumber(String studentNumber) {
+	public StudentAccountEntity getAccountByUsername(String username) {
 		
-		return sAccountRepository.findByStudentNumber(studentNumber).orElseThrow();
+		return sAccountRepository.findByUsername(username).orElseThrow();
 		
 	}
 	
-	public String createAccount(String sectionName, String studentNumber) {
+	public String createAccount(String username, 
+			String password, 
+			String surname, 
+			String firstname, 
+			String studentNum, 
+			String sectionName) {
 		
 		if (!sectionService.sectionNameExists(sectionName)) {
 			return "Section Not Exists";
 		}
 		
-		if (sAccountRepository.existsByStudentNumber(studentNumber)) {
+		if (sAccountRepository.existsByStudentNumber(studentNum)) {
 			return "Student Number already exists";
 		}
 		
+		if (sAccountRepository.existsByUsername(username)) {
+			return "Username already exists";
+		}
+		
 		sAccountRepository.save(StudentAccountEntity.builder()
-				.studentNumber(studentNumber)
+				.username(username)
+				.password(password)
+				.surname(surname)
+				.firstname(firstname)
+				.studentNumber(studentNum)
 				.sectionName(sectionName)
 				.build());
 		
 		return "Account Created Success";
 	}
-
 	
 	
 

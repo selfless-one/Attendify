@@ -6,12 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.myproject.backend.student.entity.StudentAccountEntity;
+import java.util.List;
+
 
 @Repository
 public interface StudentAccountRepository extends JpaRepository<StudentAccountEntity, Integer> {
 	
 	Optional<StudentAccountEntity> findByEmail(String email);
-	Optional<StudentAccountEntity> findByStudentNumber(String studentNumber);
+//	Optional<StudentAccountEntity> findByStudentNumber(String studentNumber);
+	Optional<StudentAccountEntity> findByUsername(String surname);
 
 	boolean existsByStudentNumber(String studentNumber);
+	boolean existsByUsername(String username);
+	
 }

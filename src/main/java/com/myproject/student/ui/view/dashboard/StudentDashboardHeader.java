@@ -1,14 +1,12 @@
 package com.myproject.student.ui.view.dashboard;
 
 import com.myproject.backend.student.entity.StudentAccountEntity;
-import com.myproject.backend.teacher.entity.TeacherAccountEntity;
+import com.myproject.student.ui.view.StudentLoginView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 
 public class StudentDashboardHeader extends HorizontalLayout {
 
@@ -38,8 +36,24 @@ public class StudentDashboardHeader extends HorizontalLayout {
 //		.set("font-size", "25px");
 
 		Button logoutBtn = new Button("Log out", e -> {
-			UI.getCurrent().getSession().close();
-			UI.getCurrent().navigate("teacher/login");
+			
+			ConfirmDialog confirmLogout = new ConfirmDialog();
+			confirmLogout.open();
+			confirmLogout.setHeader("Confirm Logout");
+			confirmLogout.setText("logout");
+			confirmLogout.setConfirmText("confirm");
+			confirmLogout.setCancelable(true);
+			
+			confirmLogout.addCancelListener(cancel -> confirmLogout.close());
+			
+			confirmLogout.addConfirmListener(evt -> {
+				confirmLogout.close();
+				
+				UI.getCurrent().getSession().close();
+				UI.getCurrent().navigate(StudentLoginView.class);
+			});
+			
+			
 		});
 		
 		logoutBtn.getStyle()

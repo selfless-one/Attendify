@@ -28,7 +28,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
-@Route("student/dashboard/studentnumber")
+@Route("student/dashboard/username")
 public class StudentDashboardView extends VerticalLayout implements HasUrlParameter<String> {
 
 	/**
@@ -40,32 +40,29 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	private Div body;
 
 	private final StudentAccountService studentAccountService;
-	private StudentAccountEntity studentAccount;
 	private SubjectService subjectService;
 	private SectionService sectionService;
 
 
-	//private Studente
+	private StudentAccountEntity studentAccount;
+	
 	private String studentSection;
-	private String studentNumberParam;
-	private String studentNumberSessioned;
-
+	
+	private String studentUsernameSessioned = (String) UI.getCurrent().getSession().getAttribute("studentUsername");
+	
 	@Override
-	public void setParameter(BeforeEvent event, String studentNumberParam) {
+	public void setParameter(BeforeEvent event, String studentUsernameParam) {
 
-		this.studentNumberParam = this.studentNumberSessioned = studentNumberParam;
-
-		if ((String) UI.getCurrent().getSession().getAttribute("student_number") == null) {
+		if (studentUsernameSessioned == null) {
 			UI.getCurrent().navigate("student/login");
 			return;
 		}
 		
-		studentAccount = studentAccountService.getAccountByStudentNumber(studentNumberParam);
+		studentAccount = studentAccountService.getAccountByUsername(studentUsernameSessioned);
 		
 		this.studentSection = studentAccount.getSectionName();
 		
 		buildUI();
-
 	}
 
 	
@@ -77,9 +74,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		this.studentAccountService = studentAccountService;
 		this.sectionService = sectionService;
 		this.subjectService = subjectService;
-		// TODO Auto-generated constructor stub
 	}
-
 
 	private void bodyConfig() {
 		body = new Div();
@@ -153,7 +148,6 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 
 					if (subject.getStatus().equals("Open"))  {
 						
-						
 						UI.getCurrent().getSession().setAttribute("idOfSelectedSubject", subject.getId());
 						
 						showOpenAttendifyDialog(subject);
@@ -161,7 +155,6 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 					} else if (subject.getStatus().equals("Closed"))  {
 						new DialogSubjectClose();
 					}
-
 
 				} catch (InterruptedException e1) {
 

@@ -16,4 +16,5 @@ public interface SectionRepository extends JpaRepository<SectionEntity, Integer>
 	List<SectionEntity> findBySectionName(String sectionName);
 	
 	boolean existsBySectionName(String sectionName);
+
 }
