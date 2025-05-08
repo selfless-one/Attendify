@@ -31,7 +31,12 @@ public class TeacherAccountEntity {
 	@Setter(AccessLevel.NONE)
 	private Integer id;
 	
-	private String email;
+	private String username;
+	
+	private String surname;
+	private String firstname;
+	
+	//private String email;
 	private String password;
 	private String token;
 	
