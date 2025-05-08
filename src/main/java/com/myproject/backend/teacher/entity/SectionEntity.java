@@ -1,8 +1,7 @@
 package com.myproject.backend.teacher.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
-
-import com.myproject.backend.student.entity.StudentAccountEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -11,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -38,7 +36,7 @@ public class SectionEntity {
 	
 	private String sectionName;
 	private String course;
-	private String dateCreated;
+	private LocalDateTime dateCreated;
 	
 	@ManyToOne
 	@JoinColumn(name = "teacher_id")
