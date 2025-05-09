@@ -1,5 +1,6 @@
 package com.myproject.backend.teacher.entity;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class SubjectEntity {
 	
 	private String subjectCode;
 	private String subjectDescription;
-	private String dateAdded;
+	private LocalDateTime dateCreated;
 	
 	private String status;
 	private LocalTime attendanceEndTime;
