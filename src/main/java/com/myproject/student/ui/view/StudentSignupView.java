@@ -122,7 +122,7 @@ public class StudentSignupView extends VerticalLayout {
 		
 		toggleBtn.addClickListener(e -> {
 
-			UI.getCurrent().navigate("teacher/signup");
+			UI.getCurrent().navigate("professor/signup");
 
 		});
 

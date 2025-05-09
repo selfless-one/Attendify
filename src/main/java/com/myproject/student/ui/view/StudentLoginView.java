@@ -74,7 +74,7 @@ public class StudentLoginView extends VerticalLayout {
 
 		toggleBtn.getStyle().set("color", "white");
 
-		toggleBtn.addClickListener(e -> UI.getCurrent().navigate("teacher/login"));
+		toggleBtn.addClickListener(e -> UI.getCurrent().navigate("professor/login"));
 
 		if (signUpLink != null && toggleBtn != null) {
 			footerLayout.add(signUpLink, toggleBtn);
