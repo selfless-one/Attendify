@@ -12,3 +12,5 @@
 node_modules/
 src/main/frontend/generated/
 vite.generated.ts
+
+hs_err_pid17240.log
