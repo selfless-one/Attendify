@@ -13,34 +13,36 @@ public class TeacherAccountService {
 
     private final TeacherAccountRepository teacherAccountRepo;
     
+    private final String myToken = "123";
 
-    public String createAccount(String email, String password, String token) {
+    public String createAccount(String username, String password, String token) {
     	
-        var myToken = "123";
-        if (!myToken.equals(token)) return "Invalid token";
+        if (!myToken.equals(token)) {
+        	return "Invalid token";
+        }
         
-        return teacherAccountRepo.findByEmail(email).map(acc -> {
-        	teacherAccountRepo.save(TeacherAccountEntity.builder().email(email).password(password).build());
-            return "Account created successfully";
-        	
-        }).orElse("Email already taken");
+        if (teacherAccountRepo.existsByUsername(username)) {
+        	return "Username already exists";
+        }
+        
+        teacherAccountRepo.save(TeacherAccountEntity.builder().username(username).password(password).build());
+        return "Account created successfully";
     }
 
-    public boolean authenticate(String email, String password) {
-        return teacherAccountRepo.findByEmail(email)
+    public boolean authenticate(String username, String password) {
+        return teacherAccountRepo.findByUsername(username)
                 .map(account -> account.getPassword().equals(password))
                 .orElse(false);
     }
 
-    public String loginAccount(String email, String password) {
-        return teacherAccountRepo.findByEmail(email)
-                .filter(account -> account.getPassword().equals(password))
-                .map(account -> "Log in success")
-                .orElse("Invalid credentials");
+    public String loginAccount(String username, String password) {
+        return teacherAccountRepo.findByUsername(username).map(account -> {
+        	return account.getPassword().equals(password) ? "Log in success" : "Invalid credentials";
+        }).orElse("Invalid credentials");
     }
 
-    public TeacherAccountEntity getAccountByEmail(String email) {
-        return teacherAccountRepo.findByEmail(email)
+    public TeacherAccountEntity getAccountByUsername(String username) {
+        return teacherAccountRepo.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
 
