@@ -1,0 +1,22 @@
+vaadin-dialog-overlay::part(header) {
+  background-color: #4460EF; /* Your desired color */
+}
+
+
+vaadin-button:hover {
+	cursor: pointer;
+}
+
+vaadin-confirm-dialog-overlay > [slot="confirm-button"] {
+	background-color: #4460EF;
+}
+
+
+
+.teacher-loginform::part(brand) {
+	background-color: #4460EF;
+}
+
+.teacher-loginform vaadin-button[theme~="submit"] {
+	background-color: #4460EF;
+}

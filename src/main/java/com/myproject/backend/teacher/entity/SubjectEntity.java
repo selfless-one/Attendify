@@ -1,6 +1,7 @@
 package com.myproject.backend.teacher.entity;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -22,29 +23,30 @@ import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Setter
-@Builder
-@Table(name = "section_list")
 @Entity
-public class SectionEntity {
-
+@Table(name = "subject_list")
+public class SubjectEntity {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Setter(AccessLevel.NONE)
 	private Integer id;
 	
-	private String sectionName;
-	private String course;
+	private String subjectCode;
+	private String subjectDescription;
 	private LocalDateTime dateCreated;
 	
-	@ManyToOne
-	@JoinColumn(name = "teacher_id")
-	private TeacherAccountEntity teacher;
+	private String status;
+	private LocalTime attendanceEndTime;
 	
-	@OneToMany(mappedBy = "section", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<SubjectEntity> subjects;
-
-
+	@ManyToOne()
+	@JoinColumn(name = "section_id")
+	private SectionEntity section;
 	
+	@OneToMany(mappedBy = "subjectCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private List<StudentAttentifiedEntity> sAttentifiedEntity;
+
 }

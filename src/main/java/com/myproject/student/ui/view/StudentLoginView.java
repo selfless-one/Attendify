@@ -1,13 +1,16 @@
 package com.myproject.student.ui.view;
 
+import com.myproject.backend.student.service.StudentAccountService;
+import com.myproject.student.ui.view.dashboard.StudentDashboardView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
@@ -16,64 +19,147 @@ public class StudentLoginView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
 
-	public StudentLoginView() {
+	private final StudentAccountService studentAccountService;
 
-		// Setup LoginI18n
-		LoginI18n i18n = LoginI18n.createDefault();
-		i18n.getForm().setUsername("Student Number");
+	private LoginOverlay loginForm = new LoginOverlay();
 
-		// Create login overlay
-		LoginOverlay loginOverlay = new LoginOverlay();
-		loginOverlay.setI18n(i18n);
+	private VerticalLayout footerLayout = new VerticalLayout();
+	private Anchor signUpLink;
+	private Button toggleBtn;
 
-		loginOverlay.setTitle("Attendify");
-		loginOverlay.setDescription(null);
+	public void configureLoginForm() {
+		loginForm.setTitle("Attendify");
+		loginForm.setDescription(null);
+	}
 
-		// --- Footer Design ---
+	public void configureFooter() {
 
+		loginForm.addForgotPasswordListener(forgot -> {
+			
+			ConfirmDialog walapa = new ConfirmDialog();
+			
+			walapa.setText("wala pa to");
+			walapa.setConfirmText("ok");
+			walapa.addConfirmListener(e -> walapa.close());
+			walapa.open();
+		});
 		
-		// Create footer layout
-		VerticalLayout footerLayout = new VerticalLayout();
 		footerLayout.setWidthFull();
 		footerLayout.setPadding(false);
 		footerLayout.setSpacing(false);
 		footerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		// Sign up clickable link
-		Anchor signUpLink = new Anchor("student/signup", "Don't have an account? Sign up");
+		signUpLink = new Anchor("student/signup", "Don't have an account? Sign up");
 		signUpLink.addClassNames(
-		    LumoUtility.TextAlignment.CENTER,
-		    LumoUtility.FontSize.SMALL,
-		    LumoUtility.Margin.NONE,
-		    LumoUtility.TextColor.PRIMARY
-		);
+				LumoUtility.TextAlignment.CENTER,
+				LumoUtility.FontSize.SMALL,
+				LumoUtility.Margin.NONE,
+				LumoUtility.TextColor.PRIMARY
+				);
 		signUpLink.getStyle().set("text-decoration", "none"); // Optional: remove underline if you want
 
-		
-		// Student toggle button
-		Button toggleBtn = new Button("I am Student");
+		toggleBtn = new Button("I am Student");
 		toggleBtn.addClassNames(
-			LumoUtility.Margin.Top.SMALL,
-			LumoUtility.FontWeight.SEMIBOLD,
-			LumoUtility.BorderRadius.MEDIUM,
-			LumoUtility.Padding.SMALL,
-			LumoUtility.TextColor.PRIMARY
-		);
-		
-		
-		toggleBtn.addClickListener(e -> {
-			
-			UI.getCurrent().navigate("teacher/login");
-			
+				LumoUtility.Margin.Top.MEDIUM,
+				LumoUtility.FontWeight.SEMIBOLD,
+				LumoUtility.BorderRadius.MEDIUM,
+				LumoUtility.Padding.SMALL,
+				LumoUtility.TextColor.PRIMARY,
+				LumoUtility.Background.PRIMARY,
+				LumoUtility.Width.AUTO,
+				LumoUtility.Height.SMALL,
+				LumoUtility.FontSize.SMALL
+				);
+
+		toggleBtn.getStyle().set("color", "white");
+
+		toggleBtn.addClickListener(e -> UI.getCurrent().navigate("professor/login"));
+
+		if (signUpLink != null && toggleBtn != null) {
+			footerLayout.add(signUpLink, toggleBtn);
+		}
+	}
+
+
+	// when all field are not filled
+	private void showErrorMessage(String errortitle, String errorMsg) {
+		loginForm.showErrorMessage(errortitle, errorMsg);
+	}
+
+
+	public void loginEvent() {
+
+		Dialog loadingDialog = new Dialog();
+		ProgressBar progressBar = new ProgressBar();
+
+		loadingDialog.setModal(true); // Blocks interaction
+		loadingDialog.setCloseOnEsc(false);
+		loadingDialog.setCloseOnOutsideClick(false);
+		progressBar.setIndeterminate(true); // Animate
+		loadingDialog.add(progressBar);
+
+		loginForm.addLoginListener(login -> {
+			if (login.getUsername().isBlank() || login.getPassword().isBlank()) {
+				showErrorMessage(null, "Please fill up all fields");
+			} else {
+
+				String username = login.getUsername();
+				String password = login.getPassword();
+
+				// Show dialog first in UI thread
+				getUI().ifPresent(ui -> {
+					
+					ui.access(() -> {
+						loadingDialog.open();
+					});
+
+					// Then run the actual logic in a new thread
+					new Thread(() -> {
+						try {
+							Thread.sleep(3000); // simulate delay
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+						boolean authenticated = studentAccountService.authenticate(username, password);
+
+						ui.access(() -> {
+							
+							loadingDialog.close();
+
+							if (authenticated) {
+								
+								UI.getCurrent().getSession().setAttribute("studentUsername", username);
+								
+								UI.getCurrent().navigate(StudentDashboardView.class, username);
+							} else {
+								showErrorMessage(
+										"Incorrect username or password", 
+										"Check that you have entered the correct username and password and try again.");
+							}
+						});
+					}).start(); // important: start the thread!
+				});
+			}
 		});
 
-		// Add elements to footer layout
-		footerLayout.add(signUpLink, toggleBtn);
-		loginOverlay.getFooter().add(footerLayout);
+	}
 
-		// Add and show login overlay
-		add(loginOverlay);
-		loginOverlay.setOpened(true);
-		loginOverlay.getElement().setAttribute("no-autofocus", "");
+
+	public StudentLoginView(StudentAccountService studentAccountService) {
+
+		this.studentAccountService = studentAccountService;
+
+		configureLoginForm();
+		configureFooter();
+
+		loginEvent();
+
+		loginForm.getFooter().add(footerLayout);
+		loginForm.setOpened(true);
+		loginForm.getElement().setAttribute("no-autofocus", "");
+
+		add(loginForm);
 	}
 }
