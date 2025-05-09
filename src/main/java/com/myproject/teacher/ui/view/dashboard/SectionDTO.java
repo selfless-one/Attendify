@@ -10,17 +10,17 @@ import lombok.Setter;
 @Setter
 public class SectionDTO {
 
-	public SectionDTO(String sectionName, String course, String dateAdded) {
+	public SectionDTO(String sectionName, String course, String dateAddedFormatted) {
 		super();
 		this.sectionName = sectionName;
 		this.course = course;
-		this.dateAdded = dateAdded;
+		this.dateAddedFormatted = dateAddedFormatted;
 	}
 
 	@Setter(AccessLevel.NONE)
 	private int id;
 	private String sectionName;
 	private String course;
-	private String dateAdded;
+	private String dateAddedFormatted;
 
 }

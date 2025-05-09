@@ -14,7 +14,7 @@ public class Subject {
 	private int id;
 	private String subjectCode;
 	private String subjectDescription;
-	private String dateAdded;
+	private String dateCreated;
 	private String status;
 	
 

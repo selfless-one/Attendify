@@ -14,105 +14,150 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.service.TeacherAccountService;
-import com.myproject.teacher.ui.view.dashboard.subjectDataPage.SubjectView;
+import com.myproject.teacher.ui.view.TeacherLoginView;
 import com.myproject.teacher.ui.view.dashboard.subjectDataPage.ValidationMessage;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-@Route("teacher/dashboard")
-public class DashboardView extends VerticalLayout {
+@Route("professor/dashboard")
+public class DashboardView extends VerticalLayout implements HasUrlParameter<String>  {
 
 	private static final long serialVersionUID = 1L;
 
 	private final TeacherAccountService teacherAccService;
 
-	private final TeacherAccountEntity teacherAccount;
-
-	private final String sessionedEmail;
+	private TeacherAccountEntity teacherAccount;
+	private final String professorUsernameSessioned = (String) UI.getCurrent().getSession().getAttribute("professorUsername");
 
 	private HorizontalLayout header;
 	private Div bodyWrapper;
 	private Div body;
 
 	//private Grid<SectionDTO> sectionsInGrid;
-	private List<SectionDTO> teacherSectionsHandled = new LinkedList<>();
+	private Set<SectionDTO> teacherSectionsHandled = new HashSet<>();
 
+	@Override
+	public void setParameter(BeforeEvent event, String username) {
+	}
+	
 	public DashboardView(TeacherAccountService teacherAccService) {
-
+		
 		this.teacherAccService = teacherAccService;
-		this.sessionedEmail = (String) UI.getCurrent().getSession().getAttribute("teacher_email");
-		this.teacherAccount = teacherAccService.getAccountByEmail(sessionedEmail);
-
+		
+		if (professorUsernameSessioned == null) {
+			UI.getCurrent().navigate(TeacherLoginView.class);
+			return;
+		}
+		
+		this.teacherAccount = teacherAccService.getAccountByUsername(professorUsernameSessioned);
+	
 		setSizeFull();
 		setAlignItems(Alignment.CENTER);
 		setJustifyContentMode(JustifyContentMode.START);
 
-		header = new DashboardHeader(teacherAccount);
-
+		header = new DashboardHeader(teacherAccount, teacherAccService);
 		bodyConfig();
+		bodyWrapperConfig();
 
 		add(header, bodyWrapper);
 	}
 
-	
-	Grid<SectionDTO> sectionsInGrid = new Grid<>(SectionDTO.class, false);
-    Editor<SectionDTO> editor = sectionsInGrid.getEditor();
+	Grid<SectionDTO> sectionsToDisplayInGrid = new Grid<>(SectionDTO.class, false);
+    Editor<SectionDTO> editor = sectionsToDisplayInGrid.getEditor();
      
-	private void bodyConfig() {
-		body = new Div();
-		body.getStyle().set("border", "2px solid black").set("border-radius", "8px").set("padding", "20px")
-				.set("width", "600px").set("height", "600px").set("margin-top", "10px").set("overflow", "auto")
-				.set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1), " + "4px 0px 10px rgba(0, 0, 0, 0.1), "
-						+ "-4px 0px 10px rgba(0, 0, 0, 0.1), " + "0px -4px 10px rgba(0, 0, 0, 0.1)");
-
-		TextField searchField = new TextField();
-		searchField.setWidth("50%");
+    private TextField searchField;
+    
+    private void configureSearchField() {
+    	
+    	searchField = new TextField();
+    	
+    	searchField.setWidth("50%");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-
-		// --------------------------------
-		ValidationMessage sectionValidationMessage = new ValidationMessage();
-        ValidationMessage courseValidationMessage = new ValidationMessage();
+    	
+		searchField.addValueChangeListener(e -> {
+			String searchTerm = searchField.getValue().trim().toUpperCase();
+			List<SectionDTO> filteredSections = teacherSectionsHandled.stream()
+					.filter(section -> section.getSectionName().toUpperCase().contains(searchTerm)
+							|| section.getCourse().toUpperCase().contains(searchTerm))
+					.collect(Collectors.toList());
+			sectionsToDisplayInGrid.setItems(filteredSections);
+		});
+    }
+    
+    private void configureSectionsToDisplayInGrid() {
+    	
+    	sectionsToDisplayInGrid.setWidthFull();
+		sectionsToDisplayInGrid.setHeight("100%");
+		sectionsToDisplayInGrid.setEmptyStateText("Your list of sections will appear here.");
+		sectionsToDisplayInGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		
+
+		sectionsToDisplayInGrid.setPartNameGenerator(section -> {
+			return section.getSectionName().startsWith("LF") ? "high-rating" : "low-rating";
+		});
+
+		// Add both high-rating and low-rating styles INLINE
+		sectionsToDisplayInGrid.getElement().executeJs("const style = document.createElement('style');" + "style.innerHTML = `"
+				+ "  vaadin-grid::part(high-rating) {" + "    background-color: var(--lumo-success-color-10pct);"
+				+ "  }" + "  vaadin-grid::part(low-rating) {" + "    background-color: var(--lumo-error-color-10pct);"
+				+ "  }" + "`;" + "document.head.appendChild(style);");
+
+		// Inside bodyConfig() method
+		sectionsToDisplayInGrid.getElement().getStyle().set("position", "relative");
+
+		sectionsToDisplayInGrid.getElement().executeJs("this.shadowRoot.querySelector('style').textContent += "
+				+ "'vaadin-grid-cell-content:hover {' + " + "'background-color: rgba(0, 123, 255, 0.2) !important; ' + "
+				+ "'transition: background-color 0.3s ease;' + " + "'}';");
+
+
+    	// --------------------------------
+    	ValidationMessage sectionValidationMessage = new ValidationMessage();
+    	ValidationMessage courseValidationMessage = new ValidationMessage();
+
+
+    	Grid.Column<SectionDTO> sectionColumn = sectionsToDisplayInGrid.addColumn(SectionDTO::getSectionName)
+    			.setHeader("Section")
+    			.setAutoWidth(true);
         
-        Grid.Column<SectionDTO> sectionColumn = sectionsInGrid.addColumn(SectionDTO::getSectionName)
-        		.setHeader("Section")
-                .setWidth("100px");
-        
-        Grid.Column<SectionDTO> courseColumn = sectionsInGrid.addColumn(SectionDTO::getCourse)
+        Grid.Column<SectionDTO> courseColumn = sectionsToDisplayInGrid.addColumn(SectionDTO::getCourse)
                 .setHeader("Course")
-                .setWidth("100px");
+                .setAutoWidth(true);
         
-        sectionsInGrid.addColumn(SectionDTO::getDateAdded)
+        sectionsToDisplayInGrid.addColumn(SectionDTO::getDateAddedFormatted)
                 .setHeader("Date added")
-                .setWidth("100px");
-        
-        Grid.Column<SectionDTO> editColumn = sectionsInGrid.addComponentColumn(section -> {
-        	
-            Button editButton = new Button("Edit");
-            editButton.addClickListener(e -> {
-                if (editor.isOpen())
-                    editor.cancel();
-                sectionsInGrid.getEditor().editItem(section);
-            });
-            return editButton;
-            
+                .setAutoWidth(true);
+
+
+        Grid.Column<SectionDTO> editColumn = sectionsToDisplayInGrid.addComponentColumn(section -> {
+
+        	Button editButton = new Button("Edit");
+        	editButton.addClickListener(e -> {
+        		if (editor.isOpen())
+        			editor.cancel();
+        		sectionsToDisplayInGrid.getEditor().editItem(section);
+        	});
+        	return editButton;
+
         }).setWidth("150px").setFlexGrow(0);
-        
         
         Binder<SectionDTO> binder = new Binder<>(SectionDTO.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
-
+        
         TextField sectionField = new TextField();
         sectionField.setWidthFull();
         binder.forField(sectionField)
@@ -129,8 +174,7 @@ public class DashboardView extends VerticalLayout {
         courseColumn.setEditorComponent(courseField);
         
         Button saveButton = new Button("Save", e -> editor.save());
-        Button cancelButton = new Button(VaadinIcon.CLOSE.create(),
-                e -> editor.cancel());
+        Button cancelButton = new Button(VaadinIcon.CLOSE.create(), e -> editor.cancel());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_ICON,
                 ButtonVariant.LUMO_ERROR);
         HorizontalLayout actions = new HorizontalLayout(saveButton,
@@ -143,52 +187,49 @@ public class DashboardView extends VerticalLayout {
             courseValidationMessage.setText("");
         });
 
-        
-		// ---------------------------------------
-		
-		//sectionsInGrid = new Grid<>(SectionDTO.class, false);
-		//sectionsInGrid.addColumn(SectionDTO::getSectionName).setHeader("Section");
-		//sectionsInGrid.addColumn(SectionDTO::getCourse).setHeader("Course");
-		//sectionsInGrid.addColumn(SectionDTO::getDateAdded).setHeader("Date Added");
-		sectionsInGrid.setWidthFull();
-		sectionsInGrid.setHeight("100%");
-		sectionsInGrid.setEmptyStateText("Your list of sections will appear here.");
+    }
 
-		sectionsInGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+    private void getTeacherSectionsHandled() {
+    	
+    	teacherAccount.getSections().forEach(sec -> {
+    		
+    		LocalDateTime sectionTimeAdded = sec.getDateCreated();
+    		String formattedDateTime = sectionTimeAdded.format(DateTimeFormatter.ofPattern("MM-dd-yy HH:mm:a"));
+    		
+    		teacherSectionsHandled.add(
+    				new SectionDTO(sec.getId(), sec.getSectionName(), sec.getCourse(), formattedDateTime));
+    	});
+    }
 
-		sectionsInGrid.setPartNameGenerator(section -> {
-			return section.getSectionName().startsWith("LF") ? "high-rating" : "low-rating";
-		});
+    private void syncTeacherSectionsHandled() {
 
-		// Add both high-rating and low-rating styles INLINE
-		sectionsInGrid.getElement().executeJs("const style = document.createElement('style');" + "style.innerHTML = `"
-				+ "  vaadin-grid::part(high-rating) {" + "    background-color: var(--lumo-success-color-10pct);"
-				+ "  }" + "  vaadin-grid::part(low-rating) {" + "    background-color: var(--lumo-error-color-10pct);"
-				+ "  }" + "`;" + "document.head.appendChild(style);");
+    	teacherSectionsHandled.clear();
 
-		// Inside bodyConfig() method
-		sectionsInGrid.getElement().getStyle().set("position", "relative");
+    	teacherAccount = teacherAccService.getAccountByUsername(professorUsernameSessioned);
 
-		sectionsInGrid.getElement().executeJs("this.shadowRoot.querySelector('style').textContent += "
-				+ "'vaadin-grid-cell-content:hover {' + " + "'background-color: rgba(0, 123, 255, 0.2) !important; ' + "
-				+ "'transition: background-color 0.3s ease;' + " + "'}';");
+    	teacherAccount.getSections().forEach(sec -> {
 
-		teacherAccount.getSections().forEach(sec -> {
-			teacherSectionsHandled.add(new SectionDTO(sec.getId(), sec.getSectionName(), sec.getCourse(), sec.getDateCreated()));
-		});
-		
-		sectionsInGrid.setItems(teacherSectionsHandled);
+    		LocalDateTime sectionTimeAdded = sec.getDateCreated();
+    		String formattedDateTime = sectionTimeAdded.format(DateTimeFormatter.ofPattern("MM-dd-yy HH:mm:a"));
 
-		searchField.addValueChangeListener(e -> {
-			String searchTerm = searchField.getValue().trim().toUpperCase();
-			List<SectionDTO> filteredSections = teacherSectionsHandled.stream()
-					.filter(section -> section.getSectionName().toUpperCase().contains(searchTerm)
-							|| section.getCourse().toUpperCase().contains(searchTerm))
-					.collect(Collectors.toList());
-			sectionsInGrid.setItems(filteredSections);
-		});
+    		teacherSectionsHandled.add(
+    				new SectionDTO(sec.getId(), sec.getSectionName(), sec.getCourse(), formattedDateTime));
+    	});
+    }
 
-		sectionsInGrid.addSelectionListener(selection -> {
+    
+    private void displaySectionsInGrid() {
+    	getTeacherSectionsHandled();
+    	sectionsToDisplayInGrid.setItems(teacherSectionsHandled);
+    }
+    
+	private void bodyConfig() {
+
+		configureSearchField();
+		configureSectionsToDisplayInGrid();
+		displaySectionsInGrid();
+
+		sectionsToDisplayInGrid.addSelectionListener(selection -> {
 			Optional<SectionDTO> optionalSection = selection.getFirstSelectedItem();
 
 			if (optionalSection.isPresent()) {
@@ -202,21 +243,35 @@ public class DashboardView extends VerticalLayout {
 
 					UI.getCurrent().getSession().setAttribute("idOfSelectedSection", selectedSection.getId());
 					
-					UI.getCurrent().navigate(SubjectView.class, sectionName);
+					// path to subject list of selected section
+					String path = "professor/username/" + professorUsernameSessioned + "/subjectlist/section/" + selectedSection.getSectionName();
+					
+					UI.getCurrent().navigate(path);
+					
+					
 				} catch (InterruptedException e1) {
 
 					e1.printStackTrace();
 				}
 			}
 		});
+		
+		body = new Div();
+		body.getStyle().set("border", "2px solid black").set("border-radius", "8px").set("padding", "20px")
+				.set("width", "600px").set("height", "600px").set("margin-top", "10px").set("overflow", "auto")
+				.set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1), " + "4px 0px 10px rgba(0, 0, 0, 0.1), "
+						+ "-4px 0px 10px rgba(0, 0, 0, 0.1), " + "0px -4px 10px rgba(0, 0, 0, 0.1)");
 
-		VerticalLayout layout = new VerticalLayout(searchField, sectionsInGrid);
+		VerticalLayout layout = new VerticalLayout(searchField, sectionsToDisplayInGrid);
 		layout.setPadding(false);
 		layout.setSpacing(false);
 		layout.setSizeFull();
 
 		body.add(layout);
+	}
 
+	private void bodyWrapperConfig() {
+		
 		Button addSectionBtn = new Button("Add section", e -> showAddSectionDialog());
 
 		addSectionBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
@@ -231,19 +286,31 @@ public class DashboardView extends VerticalLayout {
 		bodyWrapper = new Div();
 		bodyWrapper.getStyle().set("position", "relative").set("width", "600px").set("height", "600px");
 		bodyWrapper.add(body, addSectionBtn);
+		
 	}
-
+	
 	private void showAddSectionDialog() {
-		SectionDialog dialog = new SectionDialog((sectionName, courseName) -> addSection(sectionName, courseName),
-				teacherAccService, teacherAccount);
+		SectionDialog dialog = new SectionDialog((sectionName, courseName) -> addSection(sectionName, courseName));
 		dialog.open();
 	}
 
 	private void addSection(String sectionName, String courseName) {
 		LocalDateTime now = LocalDateTime.now();
-		String formattedDateTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-		SectionDTO newSection = new SectionDTO(sectionName, courseName, formattedDateTime);
-		teacherSectionsHandled.add(newSection);
-		sectionsInGrid.setItems(teacherSectionsHandled); // update grid
+		
+		//SectionDTO newSection = new SectionDTO(sectionName, courseName, formattedDateTime);
+		
+		SectionEntity newSection = SectionEntity.builder()
+        		.sectionName(sectionName)
+        		.course(courseName)
+        		.dateCreated(now)
+        		.teacher(teacherAccount)
+        		.build();
+        
+
+		teacherAccount.getSections().add(newSection);
+        teacherAccService.saveChanges(teacherAccount);
+        syncTeacherSectionsHandled();
+		//teacherSectionsHandled.add(newSection);
+		sectionsToDisplayInGrid.setItems(teacherSectionsHandled); // update grid
 	}
 }

@@ -6,8 +6,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,32 +15,88 @@ import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-@Route("teacher/login")
+@Route("professor/login")
 @CssImport("./styles/shared-styles.css")
 public class TeacherLoginView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1L;
-	
-	private final ProgressBar loadingBar; // ProgressBar instance
 
-	public TeacherLoginView(TeacherAccountService tService_) {
-		
-		final TeacherAccountService tService;
-		
-		tService = tService_;
+	private final TeacherAccountService teacherAccService;
 
-		// Setup LoginI18n
-		LoginI18n i18n = LoginI18n.createDefault();
-		i18n.getForm().setUsername("Email");
-		
-		// Create login overlay
-		LoginOverlay loginOverlay = new LoginOverlay();
-		loginOverlay.setI18n(i18n);
-		loginOverlay.setTitle("Attendify");
-		loginOverlay.setDescription(null);
-		
-		
-		loginOverlay.addForgotPasswordListener(forgot -> {
+	private final LoginOverlay loginForm = new LoginOverlay();
+
+	private final VerticalLayout footerLayout = new VerticalLayout();
+
+	public void setupLoginForm() {
+
+		loginForm.setTitle("Attendify");
+		loginForm.setDescription(null);
+		loginForm.addClassName("teacher-loginform");
+	}
+
+	private void showErrorMessage(String title, String errorMsg) {
+		loginForm.showErrorMessage(title, errorMsg);		
+	}
+
+	public void loginFormLoginEvent() {
+
+		Dialog loadingDialog = new Dialog();
+		ProgressBar progressBar = new ProgressBar();
+
+		loadingDialog.setModal(true); // Blocks interaction
+		loadingDialog.setCloseOnEsc(false);
+		loadingDialog.setCloseOnOutsideClick(false);
+		progressBar.setIndeterminate(true); // Animate
+		loadingDialog.add(progressBar);
+
+		loginForm.addLoginListener(login -> {
+
+			if (login.getUsername().isBlank() || login.getPassword().isBlank()) {
+				showErrorMessage(null, "Please fill up all fields");
+			} else {
+
+				String username = login.getUsername();
+				String password = login.getPassword();
+
+				// Show dialog first in UI thread
+				getUI().ifPresent(ui -> {
+
+					ui.access(() -> loadingDialog.open());
+
+					// Then run the actual logic in a new thread
+					new Thread(() -> {
+						try {
+							Thread.sleep(3000); // simulate delay
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+						boolean authenticated = teacherAccService.authenticate(username, password);
+
+						ui.access(() -> {
+
+							loadingDialog.close();
+
+							if (authenticated) {
+
+								UI.getCurrent().getSession().setAttribute("professorUsername", username);
+								UI.getCurrent().navigate(DashboardView.class, username);
+								
+							} else {
+								showErrorMessage(
+										"Incorrect username or password", 
+										"Check that you have entered the correct username and password and try again.");
+							}
+						});
+					}).start(); // important: start the thread!
+				});
+			}
+
+		});
+	}
+
+	public void loginFormForgotPassEvent() {
+		loginForm.addForgotPasswordListener(forgot -> {
 
 			ConfirmDialog walapa = new ConfirmDialog();
 
@@ -49,109 +105,63 @@ public class TeacherLoginView extends VerticalLayout {
 			walapa.addConfirmListener(e -> walapa.close());
 			walapa.open();
 		});
+	}
 
-		// --- Create ProgressBar ---
-		loadingBar = new ProgressBar();
-		loadingBar.setIndeterminate(true);
-		loadingBar.setVisible(false); // hidden at start
-		loadingBar.setWidthFull(); 
-		
-		loginOverlay.addLoginListener(e -> {
-			
-			// Show loading
-			loadingBar.setVisible(true);
-			loginOverlay.setEnabled(false);
-						
-			String email = e.getUsername();
-			String password = e.getPassword();
-			
-			
-			// Simulate processing delay (optional)
-			getUI().ifPresent(ui -> ui.access(() -> {
-				
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} // Half second pause (optional)
-				boolean authenticated = tService.authenticate(email, password);
-				
-				if (authenticated) {
-					
-					UI.getCurrent().getSession().setAttribute("teacher_email", email);
-					//UI.getCurrent().getSession().setAttribute("teacher_password", password);
-					
-					UI.getCurrent().navigate(DashboardView.class);
-				} else {
-					loginOverlay.setError(true);
-					loginOverlay.setEnabled(true);
-					loadingBar.setVisible(false); // Hide loading if failed
-				}
-			}));
-					
-			
-//			if (tService.loginAccount(email, password).equals("Invalid credentials")) {
-//				loginOverlay.setError(true);
-//			} else {
-//				UI.getCurrent().navigate("teacher/dashboard");
-//			}
-			
-			
-		});
-		
-		// --- Footer Design ---
+	public void setupFooterLayout() {
 
-		// Create footer layout
-		VerticalLayout footerLayout = new VerticalLayout();
 		footerLayout.setWidthFull();
 		footerLayout.setPadding(false);
 		footerLayout.setSpacing(false);
 		footerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		// Sign up clickable link
-		Anchor signUpLink = new Anchor("teacher/signup", "Don't have an account? Sign up");
+		final Anchor signUpLink = new Anchor("professor/signup", "Don't have an account? Sign up");
 		signUpLink.addClassNames(
-		    LumoUtility.TextAlignment.CENTER,
-		    LumoUtility.FontSize.SMALL,
-		    LumoUtility.Margin.NONE,
-		    LumoUtility.TextColor.PRIMARY
-		);
+				LumoUtility.TextAlignment.CENTER,
+				LumoUtility.FontSize.SMALL,
+				LumoUtility.Margin.NONE,
+				LumoUtility.TextColor.PRIMARY);
 		signUpLink.getStyle().set("text-decoration", "none"); // Optional: remove underline if you want
 
 		// Student toggle button
-		Button toggleBtn = new Button("I am Teacher");
+		Button toggleBtn = new Button("I am Professor");
 		toggleBtn.addClassNames(
-			LumoUtility.Margin.Top.MEDIUM,
-			LumoUtility.Margin.Top.SMALL,
-			LumoUtility.FontWeight.SEMIBOLD,
-			LumoUtility.BorderRadius.MEDIUM,
-			LumoUtility.Padding.SMALL,
-			LumoUtility.Width.AUTO,
-			LumoUtility.Height.SMALL,
-			LumoUtility.FontSize.SMALL
-		);
-		
-		// "#00838F" green minimalst
-		// "#00695C"
+				LumoUtility.Margin.Top.MEDIUM,
+				LumoUtility.Margin.Top.SMALL,
+				LumoUtility.FontWeight.SEMIBOLD,
+				LumoUtility.BorderRadius.MEDIUM,
+				LumoUtility.Padding.SMALL,
+				LumoUtility.Width.AUTO,
+				LumoUtility.Height.SMALL,
+				LumoUtility.FontSize.SMALL);
+
 		toggleBtn.getStyle().set("background-color", "#4460EF");
 		toggleBtn.getStyle().set("color", "WHITE");
-		
-		
+
 		toggleBtn.addClickListener(e -> {
-			
+
 			UI.getCurrent().navigate("student/login");
-			
+
 		});
 
-		// Add elements to footer layout
 		footerLayout.add(signUpLink, toggleBtn);
-		loginOverlay.getFooter().add(footerLayout);
-		
+	}
+
+	public TeacherLoginView(TeacherAccountService teacherAccService) {
+
+		this.teacherAccService = teacherAccService;
+
+		setupLoginForm();
+
+		loginFormLoginEvent();
+		loginFormForgotPassEvent();
+
+		setupFooterLayout();
+
+		loginForm.getFooter().add(footerLayout);
+
 		// Add and show login overlay
-		add(loadingBar, loginOverlay);
-		loginOverlay.setOpened(true);
-		loginOverlay.getElement().setAttribute("no-autofocus", "");
-		
+		add(loginForm);
+		loginForm.setOpened(true);
+		loginForm.getElement().setAttribute("no-autofocus", "");
 	}
 }

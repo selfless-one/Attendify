@@ -48,7 +48,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	
 	private String studentSection;
 	
-	private String studentUsernameSessioned = (String) UI.getCurrent().getSession().getAttribute("studentUsername");
+	private final String studentUsernameSessioned = (String) UI.getCurrent().getSession().getAttribute("studentUsername");
 	
 	@Override
 	public void setParameter(BeforeEvent event, String studentUsernameParam) {
@@ -132,7 +132,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		
 		subjectGrid.addColumn(SubjectEntity::getSubjectCode).setHeader(field1).setAutoWidth(true);
 		subjectGrid.addColumn(SubjectEntity::getSubjectDescription).setHeader(field2).setAutoWidth(true);
-		subjectGrid.addColumn(s -> s.getSection().getTeacher().getEmail()).setHeader(field3).setAutoWidth(true);
+		subjectGrid.addColumn(s -> s.getSection().getTeacher().getFirstname() + " " + s.getSection().getTeacher().getSurname()).setHeader(field3).setAutoWidth(true);
 		subjectGrid.addColumn(createStatusComponentRenderer()).setHeader(field4).setAutoWidth(true);
 		
 
@@ -192,7 +192,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 			List<SubjectEntity> filtered = subjects.stream()
 					.filter(subj -> subj.getSubjectCode().toUpperCase().contains(searchTerm)
 							|| subj.getSubjectDescription().toUpperCase().contains(searchTerm)
-							|| subj.getSection().getTeacher().getEmail().toUpperCase().contains(searchTerm)
+							|| subj.getSection().getTeacher().getFirstname().toUpperCase().contains(searchTerm)
+							|| subj.getSection().getTeacher().getSurname().toUpperCase().contains(searchTerm)
 							|| subj.getStatus().toUpperCase().contains(searchTerm))
 					.collect(Collectors.toList());
 			subjectGrid.setItems(filtered);

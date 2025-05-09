@@ -118,6 +118,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 		headlineWrapper.setAlignItems(FlexComponent.Alignment.CENTER);
 
 
+		// Span description = new Span("Subject: IAS1  |  " + "Section: LFAU133N004");
 		Span description = new Span("Subject: IAS1  |  " + "Section: LFAU133N004");
 		description.getStyle().set("user-select", "none")
 		.set("color", "White");
