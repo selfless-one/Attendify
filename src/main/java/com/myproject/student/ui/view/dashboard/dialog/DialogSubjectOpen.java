@@ -173,7 +173,7 @@ public class DialogSubjectOpen extends Dialog {
 		layout.setPadding(false);
 		layout.setSpacing(false);
 		layout.setAlignItems(FlexComponent.Alignment.STRETCH);
-		layout.getStyle().set("width", "18rem").set("max-width", "100%");
+		//layout.getStyle().set("width", "18rem").set("max-width", "100%");
 
 	    return layout;
 	}
