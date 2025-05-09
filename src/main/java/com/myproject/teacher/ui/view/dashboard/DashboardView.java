@@ -16,6 +16,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.TeacherAccountEntity;
@@ -45,6 +46,7 @@ public class DashboardView extends VerticalLayout implements HasUrlParameter<Str
 	private Div bodyWrapper;
 	private Div body;
 
+	
 	//private Grid<SectionDTO> sectionsInGrid;
 	private Set<SectionDTO> teacherSectionsHandled = new HashSet<>();
 
