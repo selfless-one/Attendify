@@ -10,3 +10,13 @@ vaadin-button:hover {
 vaadin-confirm-dialog-overlay > [slot="confirm-button"] {
 	background-color: #4460EF;
 }
+
+
+
+.teacher-loginform::part(brand) {
+	background-color: #4460EF;
+}
+
+.teacher-loginform vaadin-button[theme~="submit"] {
+	background-color: #4460EF;
+}
