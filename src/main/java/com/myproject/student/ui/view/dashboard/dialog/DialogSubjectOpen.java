@@ -280,7 +280,7 @@ public class DialogSubjectOpen extends Dialog {
 						.email(emailF.getValue())
 						.build();
 
-				subjectEntity.getSAttentifiedEntity().add(attendifyToSave);
+				subjectEntity.getStudentAttentifiedEntity().add(attendifyToSave);
 				subjectService.save(subjectEntity);
 
 				// maybe void
