@@ -37,16 +37,20 @@ public class SubjectEntity {
 	
 	private String subjectCode;
 	private String subjectDescription;
+	
 	private LocalDateTime dateCreated;
 	
-	private String status;
 	private LocalTime attendanceEndTime;
+	private String status;
+	
+	@Builder.Default
+	private boolean hasBeenDownloadedStudentAttendified = true;
 	
 	@ManyToOne()
 	@JoinColumn(name = "section_id")
 	private SectionEntity section;
 	
 	@OneToMany(mappedBy = "subjectCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<StudentAttentifiedEntity> sAttentifiedEntity;
+	private List<StudentAttentifiedEntity> studentAttentifiedEntity;
 
 }

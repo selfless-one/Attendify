@@ -36,17 +36,29 @@ public class SubjectService {
 		subjectRepo.save(sub);
 	}
 	
-	public void updateStatusAndAttedanceEndTimeAtById(Integer subjectId, String newStatus, LocalTime attendanceEndtime) {
+	public void updateStatusAndAttedanceEndTimeById(Integer subjectId, String newStatus, LocalTime attendanceEndtime) {
 		
-		subjectRepo.findById(subjectId).ifPresent(s -> {
-			s.setStatus(newStatus);
-			s.setAttendanceEndTime(attendanceEndtime);
-			updateSubject(s);
-		});	
+		subjectRepo.findById(subjectId).ifPresentOrElse(subject -> {
+			subject.setStatus(newStatus);
+			subject.setAttendanceEndTime(attendanceEndtime);
+			updateSubject(subject);
+		}, () -> new Exception("Subject not found. ID: " + subjectId));	
 	}
 	
 	
 	public void save(SubjectEntity sub) {
 		subjectRepo.save(sub);
+	}
+	
+	public void hasBeendownloadedStudentData(Integer subjectEntityID) {
+		
+		subjectRepo.findById(subjectEntityID).ifPresentOrElse(subject -> {
+			
+			subject.setHasBeenDownloadedStudentAttendified(true);
+			subject.getStudentAttentifiedEntity().clear();
+			save(subject);
+		}, () -> new Exception("Subject not found. ID: " + subjectEntityID));
+		
+		
 	}
 }
