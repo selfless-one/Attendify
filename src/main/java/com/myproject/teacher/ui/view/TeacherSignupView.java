@@ -145,10 +145,29 @@ public class TeacherSignupView extends VerticalLayout {
 				LumoUtility.Margin.NONE,
 				LumoUtility.TextColor.PRIMARY
 				);
+		
+		loginLink.getStyle().setFontSize("14px");
+		loginLink.getStyle().setPaddingBottom("10px");
+		loginLink.getStyle().setPaddingTop("10px");
+		
 		loginLink.getStyle().set("text-decoration", "none"); // Optional: remove underline if you want
 
 		// Student toggle button
 		Button toggleBtn = new Button("I am Professor");
+		
+
+		toggleBtn.getStyle().setHeight("30px");		
+		
+		toggleBtn.getStyle()
+		.set("z-index", "1")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		toggleBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);	
+
+		
 		toggleBtn.addClassNames(
 				LumoUtility.Margin.Top.MEDIUM,
 				LumoUtility.Margin.Top.SMALL,
@@ -159,6 +178,7 @@ public class TeacherSignupView extends VerticalLayout {
 				LumoUtility.Height.SMALL,
 				LumoUtility.FontSize.SMALL
 				);
+		
 		toggleBtn.getStyle().set("background-color", "#4460EF");
 		toggleBtn.getStyle().set("color", "WHITE");
 

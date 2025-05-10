@@ -53,8 +53,6 @@ public class SubjectDialog extends Dialog {
 				
 				close();
 				
-				UI.getCurrent().getPage().reload();
-				
 			} else {
 				
 				if (subjectCodeIsEmpty) {

@@ -1,21 +1,23 @@
-package com.myproject.teacher.ui.view.dashboard;
+package com.myproject.teacher.ui.view.dashboard.subjectDataPage;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.UI;
 import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.service.TeacherAccountService;
+import com.myproject.teacher.ui.view.dashboard.IdentityDialog;
 
-public class DashboardHeader extends HorizontalLayout {
+public class SubjectHeader extends HorizontalLayout {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DashboardHeader(TeacherAccountEntity acc, TeacherAccountService accService) {
-        setWidth("630px");
+	public SubjectHeader(TeacherAccountEntity acc, TeacherAccountService accService) {
+        setWidth("930px");
         setJustifyContentMode(JustifyContentMode.BETWEEN);
         setDefaultVerticalComponentAlignment(Alignment.CENTER);
         getStyle().set("margin-top", "40px");
@@ -44,15 +46,15 @@ public class DashboardHeader extends HorizontalLayout {
             UI.getCurrent().getSession().close();
             UI.getCurrent().navigate("teacher/login");
         });
-        //logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        
-        //logoutBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+      //  logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+       // logoutBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         logoutBtn.getStyle()
-		//.set("position", "absolute")
         .set("background-color", "#822020")
+		//.set("position", "absolute")
 		.set("bottom", "1px")
 		//.set("right", "20px")
-		.set("z-index", "1")
+		//.set("z-index", "1")
 		.set("border-radius", "10px")
 		.set("padding", "10px 20px")
 		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
@@ -63,7 +65,8 @@ public class DashboardHeader extends HorizontalLayout {
 						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
 				);	
 
-
+        
+        
         add(teacherLabel, logoutBtn);
        // addClassName(LumoUtility.Background.PRIMARY_10);
     }

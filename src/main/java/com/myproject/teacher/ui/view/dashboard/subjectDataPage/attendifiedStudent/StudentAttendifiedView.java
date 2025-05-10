@@ -1,7 +1,5 @@
 package com.myproject.teacher.ui.view.dashboard.subjectDataPage.attendifiedStudent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,14 +14,11 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.FontWeight;
 
 @Route("student/attendified/live")
 public class StudentAttendifiedView extends Div {
@@ -89,7 +84,7 @@ public class StudentAttendifiedView extends Div {
 	private void getStudentsAttendified() {
 
 		subjectEntity = subjectService.getById(subjectEntity.getId()).get();		
-		studentsAttendified = subjectEntity.getSAttentifiedEntity();
+		studentsAttendified = subjectEntity.getStudentAttentifiedEntity();
 		
 	}
 	

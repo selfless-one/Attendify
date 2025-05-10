@@ -3,19 +3,12 @@ package com.myproject.teacher.ui.view.dashboard.subjectDataPage;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
 import com.myproject.backend.teacher.entity.SubjectEntity;
-import com.myproject.backend.teacher.repository.SubjectRepository;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
-import com.myproject.teacher.ui.view.dashboard.subjectDataPage.attendifiedStudent.StudentAttendifiedView;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -27,14 +20,11 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.timepicker.TimePicker.TimePickerI18n;
 import com.vaadin.flow.dom.Style.AlignItems;
-import com.vaadin.flow.dom.Style.BoxSizing;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -46,7 +36,10 @@ public class OpenTheAttendanceDialog extends Dialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
+	private Runnable r;
+	private Integer IdOfSelectedSubject;
+	private SubjectService subjectService;
 
 	private VerticalLayout headerLayout() {
 
@@ -75,10 +68,17 @@ public class OpenTheAttendanceDialog extends Dialog {
 		.set("user-select", "none")
 		.set("color", "White");
 
-		String subjectStatus = subjectServ.getById(IdOfSelectedSubject).get().getStatus();
+		String subjectStatus = subjectService.getById(IdOfSelectedSubject).get().getStatus();
 
 		Span status = new Span("Status: ");
 		Span statusVal = new Span(subjectStatus);
+		
+		status.getStyle().set("padding", "var(--lumo-space-m) 0")
+		.set("padding-bottom", "5px")
+		.set("user-select", "none")
+		.set("color", "White");
+
+		statusVal.getStyle().set("margin-left", "5px");
 
 		// if closed
 		if (subjectStatus.equals("Closed")) {
@@ -88,22 +88,13 @@ public class OpenTheAttendanceDialog extends Dialog {
 			.set("user-select", "none")
 			.set("color", "#F0B4B4");
 
-
 		} else {
 
 			statusVal.getStyle().set("padding", "var(--lumo-space-m) 0")
 			.set("padding-bottom", "5px")
 			.set("user-select", "none")
 			.set("color", "#82F5ED");
-
 		}
-
-		status.getStyle().set("padding", "var(--lumo-space-m) 0")
-		.set("padding-bottom", "5px")
-		.set("user-select", "none")
-		.set("color", "White");
-
-		statusVal.getStyle().set("margin-left", "5px");
 
 		HorizontalLayout statusWrapper = new HorizontalLayout(status, statusVal);
 
@@ -116,10 +107,8 @@ public class OpenTheAttendanceDialog extends Dialog {
 		headlineWrapper.setWidthFull();
 		headlineWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		headlineWrapper.setAlignItems(FlexComponent.Alignment.CENTER);
-
-
-		// Span description = new Span("Subject: IAS1  |  " + "Section: LFAU133N004");
-		Span description = new Span("Subject: IAS1  |  " + "Section: LFAU133N004");
+		
+		Span description = new Span(String.format("Subject: %s  |  Section: %s", subjectEnt.getSubjectCode(), subjectEnt.getSection().getSectionName()));
 		description.getStyle().set("user-select", "none")
 		.set("color", "White");
 
@@ -131,28 +120,19 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 	}
 
-	private Runnable r;
-	private Integer IdOfSelectedSubject;
-	private SubjectService subjectServ;
-
 	public OpenTheAttendanceDialog(Runnable r, Integer IdOfSelectedSubject, SubjectService subjectServ) {
 
 		this.r = r;
 		this.IdOfSelectedSubject = IdOfSelectedSubject;
-		this.subjectServ = subjectServ;
+		this.subjectService = subjectServ;
 
 		this.subjectEnt = subjectServ.getById(IdOfSelectedSubject).get();
 
+		setCloseOnOutsideClick(false);
 		setModal(true);
 		setDraggable(true);
-
-		
-
 		
 		invokeDialog();
-
-
-
 	}
 
 
@@ -165,27 +145,33 @@ public class OpenTheAttendanceDialog extends Dialog {
 		getHeader().add(headerLayout());
 		
 		if (subjectEnt.getStatus().equals("Closed")) {
-			add(contentLayout());
-			getFooter().add(footerLayout());
+			
+			if (subjectEnt.isHasBeenDownloadedStudentAttendified()) {
+				add(contentLayoutWhenStatusIsClose());
+				getFooter().add(footerLayoutWhenStatusIsClose());
+				
+			} else {
+				add(contentLayoutWhenStatusIsOpenAndDownloadable());
+				getFooter().add(footerLayoutWhenStatusIsClosedAndDownloadable());
+			}
+			
+			
 		} else {
 			add(contentLayoutWhenStatusIsOpen());
 			getFooter().add(footerLayoutWhenStatusIsOpen());
 		}
-
-		
-
 	}
 
 	private boolean[] buttonIsClosed = {true};
 	private TimePicker timePicker = new TimePicker();
 
-	private HorizontalLayout contentLayout() {
+	private HorizontalLayout contentLayoutWhenStatusIsClose() {
 
 		Button openAttendifyBtn = new Button("Open");
 		openAttendifyBtn.getStyle().setBackgroundColor("#877BAE");
 		openAttendifyBtn.getStyle().setColor("White");
 
-
+		timePicker.setEnabled(false);
 		//openAttendifyBtn.getStyle().set("flex-shrink", "0");
 
 		openAttendifyBtn.addClickListener(evt -> {
@@ -195,38 +181,38 @@ public class OpenTheAttendanceDialog extends Dialog {
 				openAttendifyBtn.getStyle().setColor("White");
 				openAttendifyBtn.setText("Open");
 				timePicker.setPlaceholder("until what time?");
+				timePicker.setTooltipText("The time you set will apply only for today");
+				timePicker.setRequiredIndicatorVisible(true);
+				timePicker.setStep(Duration.ofMinutes(30));
+				timePicker.setI18n(new TimePickerI18n());
+				timePicker.setClearButtonVisible(true);
 				timePicker.setEnabled(true);
 				timePicker.setInvalid(false);
+				
 				confirmBtn.setEnabled(true);
+				
 				buttonIsClosed[0] = false;
 			} else {
 				openAttendifyBtn.getStyle().setBackgroundColor("#877BAE");
 				openAttendifyBtn.getStyle().setColor("Dark");
 				openAttendifyBtn.setText("Open");
 				timePicker.setEnabled(false);
-				confirmBtn.setEnabled(false);	
 				timePicker.setInvalid(false);
 				timePicker.setValue(null);
+				
+				confirmBtn.setEnabled(false);				
+				
 				buttonIsClosed[0] = true;
 			}
 		});
 
-		timePicker.setEnabled(false);
-		timePicker.setPlaceholder("until what time?");
-		timePicker.setClearButtonVisible(true);
-		timePicker.setTooltipText("The time you set will apply only for today");
-
-		timePicker.setRequiredIndicatorVisible(true);
-		timePicker.setStep(Duration.ofMinutes(30));
-
-		timePicker.setI18n(new TimePickerI18n());
-
+		//timePicker.setEnabled(false);
+		//timePicker.setPlaceholder("until what time?");
+		
 		HorizontalLayout content = new HorizontalLayout(openAttendifyBtn, timePicker);
 		content.getStyle().setAlignItems(AlignItems.CENTER);
 		content.getStyle().setPaddingTop("10%").setPaddingBottom("1%");
 		return content;
-
-
 	}
 
 	private SubjectEntity subjectEnt;
@@ -235,11 +221,12 @@ public class OpenTheAttendanceDialog extends Dialog {
 	private Span clock = new Span();
 
 	private VerticalLayout contentLayoutWhenStatusIsOpen() {
+		
 		clock.getStyle()
-		.set("color", "Black")
-		.set("margin-left", "5px")
+		.set("color", "#ee4654")
+		.set("font-weight", "bold")
+		.set("margin-left", "5px")		
 		.set("margin-right", "5px");
-
 
 		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
@@ -253,7 +240,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 			LocalTime now = LocalTime.now();
 			Duration remaining = Duration.between(now, attendanceEndTime);
 
-
 			//String timeCoundown = LocalTime.now().;
 
 			if (!remaining.isNegative() && ui != null && ui.getSession() != null) {
@@ -265,25 +251,43 @@ public class OpenTheAttendanceDialog extends Dialog {
 				String countdownText = String.format("%02d:%02d:%02d", hours, minutes, seconds);
 
 				ui.access(() -> clock.setText(countdownText)); // safely update UI
+				
 			} else {
+				
 				// Time's up
 				ui.access(() -> clock.setText("00:00:00"));
 
+				
 				subjectEnt.setStatus("Closed");
-				subjectServ.save(subjectEnt);
+				subjectEnt.setHasBeenDownloadedStudentAttendified(false);
+				subjectService.save(subjectEnt);
 				System.out.println("Time is up! Reloading page...");
-				ui.getPage().reload();
-
+				
+				ui.access(() -> {
+					ui.getPage().reload();
+//					invokeDialog();
+//					r.run();
+					
+				});
+				
 				scheduler.shutdown(); // Stop updating
 			}
 		}, 0, 1, TimeUnit.SECONDS); // update every 1 second
 
-
+		
+		Span attendanceEndTimeToDisplay = new Span(subjectEnt.getAttendanceEndTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+		
+		attendanceEndTimeToDisplay.getStyle()
+		.set("color", "#05b888")
+		.set("font-weight", "bold")
+		.set("margin-left", "5px")
+		.set("margin-right", "5px");
+		
 		Span clockLabel = new Span("Time left: ");
-		Span closeOfTimeLabel = new Span("Ends at: " + subjectEnt.getAttendanceEndTime()); 
+		Span closeOfTimeLabel = new Span("Ends at: "); 
 
 
-		HorizontalLayout content = new HorizontalLayout(clockLabel, clock, closeOfTimeLabel);
+		HorizontalLayout content = new HorizontalLayout(clockLabel, clock, closeOfTimeLabel, attendanceEndTimeToDisplay);
 		//content.getStyle().setAlignItems(AlignItems.CENTER);
 		content.getStyle().setPaddingTop("1%");
 		content.setSpacing(false);
@@ -301,6 +305,20 @@ public class OpenTheAttendanceDialog extends Dialog {
 		return content1;
 	}
 
+	private VerticalLayout contentLayoutWhenStatusIsOpenAndDownloadable() {
+		
+		
+		Span label = new Span("Pending download of student attendance.");
+		
+		label.getStyle().setColor("#05b888");
+		label.getStyle().setPaddingTop("15px");
+		label.getStyle().setFontSize("20spx");
+		
+		VerticalLayout v = new VerticalLayout(label);
+		v.setWidthFull();
+		return v;
+	}
+	
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
 		super.onDetach(detachEvent);
@@ -309,22 +327,52 @@ public class OpenTheAttendanceDialog extends Dialog {
 		}
 	}
 
-	Button confirmBtn = new Button("Confirm");
-	Button cancelBtn = new Button("Cancel", evt -> this.close());
+	private Button confirmBtn = new Button("Confirm");
+	private Button cancelBtn = new Button("Cancel", evt -> this.close());
 
-	private HorizontalLayout footerLayout() {
+	private HorizontalLayout footerLayoutWhenStatusIsClose() {
+
 		confirmBtn.setEnabled(false);
+
+		confirmBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		confirmBtn.getStyle()
+		.set("border-radius", "10px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		confirmBtn.getElement().getThemeList().add("primary");
+		confirmBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);	
+
+
+		boolean[] timePickedIsValidToday = {false};
+
+		timePicker.addValueChangeListener(event -> {
+
+			LocalTime currentTime = LocalTime.now();
+			LocalTime selectedTime = event.getValue();
+
+			if (selectedTime != null && selectedTime.isAfter(currentTime)) {
+				timePickedIsValidToday[0] = true;
+				timePicker.getElement().getThemeList().add("valid-time");
+				timePicker.getElement().getThemeList().remove("invalid-time");
+			} else {
+				timePickedIsValidToday[0] = false;
+				timePicker.getElement().getThemeList().add("invalid-time");
+				timePicker.getElement().getThemeList().remove("valid-time");
+			}
+		});
+
 
 		confirmBtn.addClickListener(evt -> {
 
-			boolean timePickerIsEmpty = timePicker.isEmpty();
-			boolean timePickerIsInvalid = timePicker.isInvalid();
+			if (timePickedIsValidToday[0] ) {
 
-			if (!timePickerIsEmpty && !timePickerIsInvalid) {
+				subjectService.updateStatusAndAttedanceEndTimeById(IdOfSelectedSubject, "Open", timePicker.getValue());
 
-				System.out.println("adas");
-
-				subjectServ.updateStatusAndAttedanceEndTimeAtById(IdOfSelectedSubject, "Open", timePicker.getValue());
+				//  DateTimeFormatter formatted = DateTimeFormatter.ofPattern("HH:mm:ss a");
+				UI.getCurrent().getPage().reload();
 
 				r.run();
 				this.close();
@@ -332,13 +380,9 @@ public class OpenTheAttendanceDialog extends Dialog {
 			} else {
 				timePicker.setInvalid(true);
 			}
-
-
 		});
 
 		return new HorizontalLayout(confirmBtn, cancelBtn);
-
-
 	}
 
 	private HorizontalLayout footerLayoutWhenStatusIsOpen() {
@@ -374,12 +418,9 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 
 		viewBtn.addClickListener(evt -> {
-			
-//			UI.getCurrent().getPage().executeJs("window.open($0, '_blank')", 
-//				    StudentAttendifiedView.class.getAnnotation(Route.class).value());
-			
+
 			UI.getCurrent().getSession().setAttribute("subjectEntity", subjectEnt);
-			
+
 			UI.getCurrent().getPage().executeJs("window.open('student/attendified/live', '_blank')");
 
 
@@ -392,6 +433,48 @@ public class OpenTheAttendanceDialog extends Dialog {
 		return new HorizontalLayout(viewBtn, closeAndResetBtn);
 	}
 
+	private HorizontalLayout footerLayoutWhenStatusIsClosedAndDownloadable() {
+
+		final Button viewBtn = new Button("View");
+		final Button downloadBtn = new Button("Download");
+		
+		viewBtn.getStyle()
+		.set("font-size", "14px")
+		.set("background-color", "#21a05d")
+		.set("border-radius", "10px")
+		.set("padding", "10px 20px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		viewBtn.getElement().getThemeList().add("primary");
+		viewBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);
+		
+		downloadBtn.getStyle()
+		.set("font-size", "14px")
+		.set("background-color", "#21a05d")
+		.set("border-radius", "10px")
+		.set("padding", "10px 20px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		downloadBtn.getElement().getThemeList().add("primary");
+		downloadBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);
+
+		downloadBtn.addClickListener(download -> {
+			
+		});
+		
+		
+		viewBtn.addClickListener(view -> {
+			
+		});
+
+		return new HorizontalLayout(viewBtn, downloadBtn);
+	}
 
 	private void confirmCloseAndResetDialog() {
 
@@ -409,9 +492,9 @@ public class OpenTheAttendanceDialog extends Dialog {
 		dialog.addConfirmListener(event -> {
 
 			subjectEnt.setStatus("Closed");
-			subjectServ.save(subjectEnt);
+			subjectService.save(subjectEnt);
 			
-			subjectEnt = subjectServ.getById(IdOfSelectedSubject).get();
+			subjectEnt = subjectService.getById(IdOfSelectedSubject).get();
 
 			r.run();
 			invokeDialog();

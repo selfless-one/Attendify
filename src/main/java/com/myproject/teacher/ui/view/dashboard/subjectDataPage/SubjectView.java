@@ -26,8 +26,6 @@ import com.myproject.backend.teacher.service.SectionService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
-import com.myproject.teacher.ui.view.dashboard.DashboardHeader;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
@@ -103,7 +101,7 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	}
 
 	private void setupHeader() {
-		header = new DashboardHeader(teacherAccount, teacherAccService);
+		header = new SubjectHeader(teacherAccount, teacherAccService);
 	}
 
 	private void setupTopbarInBody() {
@@ -274,10 +272,29 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	// ---------------------------------- grid status field util
 	private final SerializableBiConsumer<Span, Subject> statusComponentUpdater = (
 			span, subject) -> {
-				boolean isOpen = "Open".equals(subject.getStatus());
-				String theme = String.format("badge %s",
-						isOpen ? "success" : "error");
-				span.getElement().setAttribute("theme", theme);
+			//	boolean isOpen = "Open".equals(subject.getStatus());
+//				String theme = String.format("badge %s",
+//						isOpen ? "success" : "error");
+//				span.getElement().setAttribute("theme", theme);
+//				
+				if ("Open".equals(subject.getStatus())) {
+					
+					span.getStyle().setBackgroundColor("#05b888");
+					span.getStyle().setPaddingRight("13px");
+					span.getStyle().setPadding("5px");
+				}
+				
+				if ("Closed".equals(subject.getStatus())) {
+					
+					span.getStyle().setBackgroundColor("#ee4654");
+					span.getStyle().setPadding("5px");
+
+				}
+				
+				span.getStyle().setColor("White");
+				span.getStyle().setBorderRadius("3px");
+				span.getStyle().setFontSize("14px");
+				
 				span.setText(subject.getStatus());
 			};
 
@@ -301,7 +318,7 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	}
 
 	private void showOpenAttendifyDialog(Integer selectedSubjectId) {
-		OpenTheAttendanceDialog dialog = new OpenTheAttendanceDialog(this::updateSubjectStatus, selectedSubjectId, subjectService);
+		OpenTheAttendanceDialog dialog = new OpenTheAttendanceDialog(this::syncSubjectsData, selectedSubjectId, subjectService);
 		dialog.open();
 	}
 
@@ -333,6 +350,8 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 
 			subjects.add(new Subject(subs.getId(), subs.getSubjectCode(), subs.getSubjectDescription(), formattedDateTime, subs.getStatus()));
 		});
+		
+		subjectsToDisplayInGrid.setItems(subjects);
 	}
 
 	private void addSubject(String subjectCode, String subjectDesc) {
@@ -352,6 +371,6 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		sectionService.saveChanges(selectedSection);
 		
 		syncSubjectsData();
-		subjectsToDisplayInGrid.setItems(subjects);
+		
 	}
 }

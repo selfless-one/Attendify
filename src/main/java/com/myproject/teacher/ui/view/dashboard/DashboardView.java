@@ -16,7 +16,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.TeacherAccountEntity;
@@ -277,9 +276,15 @@ public class DashboardView extends VerticalLayout implements HasUrlParameter<Str
 		Button addSectionBtn = new Button("Add section", e -> showAddSectionDialog());
 
 		addSectionBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-		addSectionBtn.getStyle().set("position", "absolute").set("bottom", "1px").set("right", "20px")
-				.set("z-index", "1").set("border-radius", "10px").set("padding", "10px 20px")
-				.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)").set("transition", "transform 0.2s ease-in-out");
+		addSectionBtn.getStyle()
+				.set("position", "absolute")
+				.set("bottom", "1px")
+				.set("right", "20px")
+				.set("z-index", "1")
+				.set("border-radius", "10px")
+				.set("padding", "10px 20px")
+				.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+				.set("transition", "transform 0.2s ease-in-out");
 		addSectionBtn.getElement().getThemeList().add("primary");
 		addSectionBtn.getElement()
 				.executeJs("this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });"

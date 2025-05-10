@@ -112,8 +112,14 @@ public class IdentityDialog extends Dialog {
 							LumoUtility.Margin.Bottom.SMALL, 
 							LumoUtility.TextColor.PRIMARY_CONTRAST);
 					
-					Span surnameData = new Span("Surname: " + surname.getValue());
-					Span firstnameData = new Span("Firstname: " + firstname.getValue());
+					
+					String surnameC = surname.getValue().trim(), firstnameC = firstname.getValue().trim();
+		    		
+		    		var surnameFormat = surnameC.substring(0, 1).toUpperCase() + surnameC.substring(1).toLowerCase();
+		    		var firstnameFormat = firstnameC.substring(0, 1).toUpperCase() + firstnameC.substring(1).toLowerCase();
+					
+		    		Span surnameData = new Span("Surname: " + surnameFormat);
+					Span firstnameData = new Span("Firstname: " + firstnameFormat);
 					
 					VerticalLayout details = new VerticalLayout(surnameData, firstnameData);
 					details.setSpacing(false);
@@ -138,9 +144,7 @@ public class IdentityDialog extends Dialog {
 					
 					confirmBtn.addClickListener(e -> {
 						
-						acc.setSurname(surname.getValue());
-						acc.setFirstname(firstname.getValue());
-						accService.saveChanges(acc);
+						accService.saveSurnameAndFirstname(surname.getValue(), firstname.getValue(), acc);
 						
 						dialogConfirm.close();
 						this.close();
