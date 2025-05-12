@@ -1,6 +1,7 @@
 package com.myproject.teacher.ui.view.dashboard;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.UI;
@@ -41,8 +42,21 @@ public class DashboardHeader extends HorizontalLayout {
                 .set("font-size", "18px");
 
         Button logoutBtn = new Button("Logout", e -> {
-            UI.getCurrent().getSession().close();
-            UI.getCurrent().navigate("teacher/login");
+        	
+        	ConfirmDialog confirmLogout = new ConfirmDialog();
+        	
+        	confirmLogout.setCancelable(true);
+        	confirmLogout.setConfirmText("Confirm");
+        	confirmLogout.setText("Confirm Logout...");
+        	
+        	confirmLogout.addConfirmListener(event -> {
+        		
+        		UI.getCurrent().getSession().close();
+                UI.getCurrent().navigate("teacher/login");
+        	});
+        	
+        	confirmLogout.open();
+        	
         });
         //logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
         

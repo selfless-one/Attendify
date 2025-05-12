@@ -35,6 +35,11 @@ public class SectionDialog extends Dialog {
 
 		headerLabel = new Span("Add section");
 
+		headerLabel.getStyle().setFontSize("18px");
+		headerLabel.getStyle().setFontWeight("bold");
+		headerLabel.getStyle().setPaddingBottom("3px");
+		headerLabel.getStyle().setPaddingLeft("8px");
+		
 		headerLabel.addClassName("draggable");
 		headerLabel.getStyle()
 		.set("cursor", "move")
@@ -79,15 +84,30 @@ public class SectionDialog extends Dialog {
 		cancelButton = new Button("Cancel", e -> this.close());
 
 		footer = new HorizontalLayout(saveButton, cancelButton);
-
+		
 		saveButton.addClickListener(e -> {
 			
-			boolean sectionIsEmpty = sectionField.getValue().isBlank();
-			boolean courseIsEmpty = courseField.getValue().isBlank();
+			var sectionValue = sectionField.getValue().trim();
+			var courseValue = courseField.getValue().trim();
+			
+			boolean sectionIsEmpty = sectionValue.isBlank();
+			boolean courseIsEmpty = courseValue.isBlank();
 
 			if (!sectionIsEmpty && !courseIsEmpty) {
+				
+				if (sectionValue.contains(" ")) {
+					sectionField.setInvalid(true);
+					sectionField.setErrorMessage("whitespace is not allowed");
+					return;
+				}
+				
+				if (courseValue.contains(" ")) {
+					courseField.setInvalid(true);
+					courseField.setErrorMessage("whitespace is not allowed");
+					return;
+				}
 
-				onSave.accept(sectionField.getValue(), courseField.getValue());
+				onSave.accept(sectionValue.toUpperCase(), courseValue.toUpperCase());
 				close();
 				
 			} else {

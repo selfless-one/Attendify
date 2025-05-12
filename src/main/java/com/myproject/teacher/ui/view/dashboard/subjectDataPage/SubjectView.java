@@ -4,6 +4,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -68,7 +70,7 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		this.teacherAccService = teacherAccService;
 		this.sectionService = sectionService;
 		this.subjectService = subjectService;
-
+		
 		setSizeFull();
 		setAlignItems(Alignment.CENTER);
 		//setJustifyContentMode(JustifyContentMode.s);
@@ -148,7 +150,9 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		subjectsToDisplayInGrid.setWidthFull();
 		subjectsToDisplayInGrid.setHeight("100%");
 		subjectsToDisplayInGrid.setEmptyStateText("Your list of subject for section " + sectionNamePath + " will appear here.");
-		subjectsToDisplayInGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		subjectsToDisplayInGrid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
+		subjectsToDisplayInGrid.setAllRowsVisible(true);
+		subjectsToDisplayInGrid.setSizeUndefined();
 		subjectsToDisplayInGrid.setPartNameGenerator(subject -> !subject.getSubjectCode().isEmpty() ? "high-rating" : "low-rating");
 
 		// Add custom grid styling
@@ -170,10 +174,25 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 						"}';"
 				);
 
-		subjectsToDisplayInGrid.addColumn(Subject::getSubjectCode).setHeader("Subject Code").setAutoWidth(true);
-		subjectsToDisplayInGrid.addColumn(Subject::getSubjectDescription).setHeader("Description").setAutoWidth(true);
-		subjectsToDisplayInGrid.addColumn(Subject::getDateCreated).setHeader("Date Added").setAutoWidth(true);
-		subjectsToDisplayInGrid.addColumn(createStatusComponentRenderer()).setHeader("Status");
+		Span field1 = new Span("Subject Code");
+		Span field2 = new Span("Description");
+		Span field3 = new Span("Date Added");
+		Span field4 = new Span("Status");
+		
+
+		List.of(field1, field2, field3, field4).forEach(field -> {
+			field.getStyle().setFontWeight("bold");
+			field.getStyle().setFontSize("15px");
+		});
+		
+		
+		DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("MM-dd-yy hh:mm:a");
+			
+		subjectsToDisplayInGrid.addColumn(Subject::getSubjectCode).setHeader(field1).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+		subjectsToDisplayInGrid.addColumn(Subject::getSubjectDescription).setHeader(field2).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+		subjectsToDisplayInGrid.addColumn(source -> source.getDateCreated().formatted(dateTimeFormat)).setHeader(field3).setAutoWidth(true)
+		.setTextAlign(ColumnTextAlign.CENTER);
+		subjectsToDisplayInGrid.addColumn(createStatusComponentRenderer()).setHeader(field4).setTextAlign(ColumnTextAlign.CENTER);
 
 
 		subjectsToDisplayInGrid.addSelectionListener(selection -> {
@@ -206,7 +225,6 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 
 		bodyContentLayout = new VerticalLayout(topbarInBody, subjectsToDisplayInGrid);
 		bodyContentLayout.setPadding(false);
-		bodyContentLayout.setSpacing(false);
 		bodyContentLayout.setSizeFull();
 	}
 
@@ -357,6 +375,24 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	private void addSubject(String subjectCode, String subjectDesc) {
 		
 		LocalDateTime now = LocalDateTime.now();
+		
+//		subjectCode = subjectCode.toUpperCase().trim();
+//		subjectDesc = subjectDesc.trim();
+
+		selectedSection = sectionService.getAccountById(idOfSelectedSection).orElseThrow();
+
+		var sectionNameAlreadyExists = selectedSection.getSubjects().stream()
+				.anyMatch(section -> section.getSubjectCode().equals(subjectCode));
+
+		if (sectionNameAlreadyExists) {
+
+			ConfirmDialog alreadyExistsDialog = new ConfirmDialog();
+			alreadyExistsDialog.setText("Subject name already exists...");
+			alreadyExistsDialog.setConfirmText("Ok");
+			alreadyExistsDialog.open();
+
+			return;
+		}
 		
 		SubjectEntity newSub = SubjectEntity.builder()
 		.subjectCode(subjectCode)

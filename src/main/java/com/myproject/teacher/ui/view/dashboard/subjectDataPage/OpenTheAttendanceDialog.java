@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
+import com.myproject.teacher.ui.view.dashboard.subjectDataPage.attendifiedStudent.DownloadStudentAttendified;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -25,11 +27,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.timepicker.TimePicker.TimePickerI18n;
 import com.vaadin.flow.dom.Style.AlignItems;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.StreamResource;
 
 @CssImport("./styles/shared-styles.css")
-@Route
 public class OpenTheAttendanceDialog extends Dialog {
 
 	/**
@@ -39,8 +40,60 @@ public class OpenTheAttendanceDialog extends Dialog {
 	
 	private Runnable r;
 	private Integer IdOfSelectedSubject;
-	private SubjectService subjectService;
+	private SubjectService subjectService;                                                                                
+	
+	private SubjectEntity subjectEntity;
 
+	public OpenTheAttendanceDialog(Runnable r, Integer IdOfSelectedSubject, SubjectService subjectService) {
+
+		this.r = r;
+		this.IdOfSelectedSubject = IdOfSelectedSubject;
+		this.subjectService = subjectService;
+
+		this.subjectEntity = subjectService.getById(IdOfSelectedSubject).get();
+                                                                                             
+		setCloseOnOutsideClick(false);
+		setModal                                                                                                                                                                                                                                                             (true);
+		setDraggable(true);
+		
+		invokeDialog();
+	}
+
+	private void invokeDialog() {
+
+		getHeader().removeAll();
+		getFooter().removeAll();
+		removeAll();
+		
+		getHeader().add(headerLayout());
+		
+		if (subjectEntity.getStatus().equals("Closed")) {
+			
+			if (subjectEntity.isHasBeenDownloadedStudentAttendified()) {
+				
+				add(contentLayoutWhenStatusIsClose());
+				getFooter().add(footerLayoutWhenStatusIsClose());
+				
+			} else {
+				
+				add(contentLayoutWhenStatusIsOpenAndDownloadable());
+				getFooter().add(footerLayoutWhenStatusIsClosedAndDownloadable());
+			}
+			
+		} else {
+			add(contentLayoutWhenStatusIsOpen());
+			getFooter().add(footerLayoutWhenStatusIsOpen());
+		}
+	}
+
+	private boolean[] buttonIsClosed = {true};
+	private TimePicker timePicker = new TimePicker();
+	
+	private ScheduledExecutorService scheduler;
+	private Span clock = new Span();
+	
+	private Button confirmBtn = new Button("Confirm");
+	
 	private VerticalLayout headerLayout() {
 
 		Button closeButton = new Button(VaadinIcon.CLOSE.create());
@@ -108,7 +161,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 		headlineWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		headlineWrapper.setAlignItems(FlexComponent.Alignment.CENTER);
 		
-		Span description = new Span(String.format("Subject: %s  |  Section: %s", subjectEnt.getSubjectCode(), subjectEnt.getSection().getSectionName()));
+		Span description = new Span(String.format("Subject: %s  |  Section: %s", subjectEntity.getSubjectCode(), subjectEntity.getSection().getSectionName()));
 		description.getStyle().set("user-select", "none")
 		.set("color", "White");
 
@@ -119,51 +172,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 		return header;
 
 	}
-
-	public OpenTheAttendanceDialog(Runnable r, Integer IdOfSelectedSubject, SubjectService subjectServ) {
-
-		this.r = r;
-		this.IdOfSelectedSubject = IdOfSelectedSubject;
-		this.subjectService = subjectServ;
-
-		this.subjectEnt = subjectServ.getById(IdOfSelectedSubject).get();
-
-		setCloseOnOutsideClick(false);
-		setModal(true);
-		setDraggable(true);
-		
-		invokeDialog();
-	}
-
-
-	private void invokeDialog() {
-
-		getHeader().removeAll();
-		getFooter().removeAll();
-		removeAll();
-		
-		getHeader().add(headerLayout());
-		
-		if (subjectEnt.getStatus().equals("Closed")) {
-			
-			if (subjectEnt.isHasBeenDownloadedStudentAttendified()) {
-				add(contentLayoutWhenStatusIsClose());
-				getFooter().add(footerLayoutWhenStatusIsClose());
-				
-			} else {
-				add(contentLayoutWhenStatusIsOpenAndDownloadable());
-				getFooter().add(footerLayoutWhenStatusIsClosedAndDownloadable());
-			}
-			
-			
-		} else {
-			add(contentLayoutWhenStatusIsOpen());
-			getFooter().add(footerLayoutWhenStatusIsOpen());
-		}
-	}
-
-	private boolean[] buttonIsClosed = {true};
-	private TimePicker timePicker = new TimePicker();
 
 	private HorizontalLayout contentLayoutWhenStatusIsClose() {
 
@@ -215,11 +223,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 		return content;
 	}
 
-	private SubjectEntity subjectEnt;
-
-	private ScheduledExecutorService scheduler;
-	private Span clock = new Span();
-
 	private VerticalLayout contentLayoutWhenStatusIsOpen() {
 		
 		clock.getStyle()
@@ -232,15 +235,14 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 		UI ui = UI.getCurrent(); // capture UI before going async
 
-		LocalTime attendanceEndTime = subjectEnt.getAttendanceEndTime();
+		LocalTime attendanceEndTime = subjectEntity.getAttendanceEndTime();
 
 		scheduler = Executors.newSingleThreadScheduledExecutor();
+		
 		scheduler.scheduleAtFixedRate(() -> {
 
 			LocalTime now = LocalTime.now();
 			Duration remaining = Duration.between(now, attendanceEndTime);
-
-			//String timeCoundown = LocalTime.now().;
 
 			if (!remaining.isNegative() && ui != null && ui.getSession() != null) {
 
@@ -258,11 +260,10 @@ public class OpenTheAttendanceDialog extends Dialog {
 				ui.access(() -> clock.setText("00:00:00"));
 
 				
-				subjectEnt.setStatus("Closed");
-				subjectEnt.setHasBeenDownloadedStudentAttendified(false);
-				subjectService.save(subjectEnt);
+				//subjectEntity.setStatus("Closed");
+				//subjectEntity.setHasBeenDownloadedStudentAttendified(false);
+				//subjectService.save(subjectEntity);
 				System.out.println("Time is up! Reloading page...");
-				
 				ui.access(() -> {
 					ui.getPage().reload();
 //					invokeDialog();
@@ -275,7 +276,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 		}, 0, 1, TimeUnit.SECONDS); // update every 1 second
 
 		
-		Span attendanceEndTimeToDisplay = new Span(subjectEnt.getAttendanceEndTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+		Span attendanceEndTimeToDisplay = new Span(subjectEntity.getAttendanceEndTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
 		
 		attendanceEndTimeToDisplay.getStyle()
 		.set("color", "#05b888")
@@ -307,7 +308,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 	private VerticalLayout contentLayoutWhenStatusIsOpenAndDownloadable() {
 		
-		
 		Span label = new Span("Pending download of student attendance.");
 		
 		label.getStyle().setColor("#05b888");
@@ -318,17 +318,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 		v.setWidthFull();
 		return v;
 	}
-	
-	@Override
-	protected void onDetach(DetachEvent detachEvent) {
-		super.onDetach(detachEvent);
-		if (scheduler != null && !scheduler.isShutdown()) {
-			scheduler.shutdownNow();
-		}
-	}
-
-	private Button confirmBtn = new Button("Confirm");
-	private Button cancelBtn = new Button("Cancel", evt -> this.close());
 
 	private HorizontalLayout footerLayoutWhenStatusIsClose() {
 
@@ -382,6 +371,8 @@ public class OpenTheAttendanceDialog extends Dialog {
 			}
 		});
 
+		final Button cancelBtn = new Button("Cancel", evt -> this.close());
+		
 		return new HorizontalLayout(confirmBtn, cancelBtn);
 	}
 
@@ -389,12 +380,25 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 		final Button viewBtn = new Button("View");
 		final Button closeAndResetBtn = new Button("Reset and Close");
+		final Button downloadBtn = new Button("Download");
+
+		downloadBtn.getStyle()
+		.set("font-size", "14px")
+		.set("background-color", "#21a05d")
+		.set("border-radius", "10px")
+		.set("padding", "10px 10px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		downloadBtn.getElement().getThemeList().add("primary");
+		downloadBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+				"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });");
 
 		viewBtn.getStyle()
 		.set("font-size", "14px")
 		.set("background-color", "#21a05d")
 		.set("border-radius", "10px")
-		.set("padding", "10px 20px")
+		.set("padding", "10px 10px")
 		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
 		.set("transition", "transform 0.2s ease-in-out");
 		viewBtn.getElement().getThemeList().add("primary");
@@ -407,7 +411,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 		closeAndResetBtn.getStyle()
 		.set("font-size", "14px")
 		.set("border-radius", "10px")
-		.set("padding", "10px 20px")
+		.set("padding", "10px 10px")
 		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
 		.set("transition", "transform 0.2s ease-in-out");
 		closeAndResetBtn.getElement().getThemeList().add("primary");
@@ -416,12 +420,27 @@ public class OpenTheAttendanceDialog extends Dialog {
 						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
 				);
 
+		downloadBtn.addClickListener(event -> {
+
+			DownloadStudentAttendified exporter = new DownloadStudentAttendified(IdOfSelectedSubject, subjectService);
+
+			StreamResource excelResource = exporter.getExcelResource();
+
+			Anchor downloadLink = new Anchor(excelResource, "");
+			downloadLink.getElement().setAttribute("download", true); // Important!
+			downloadLink.getStyle().set("display", "none"); // hide from view
+			add(downloadLink); // add to layout
+
+			downloadLink.getElement().executeJs("this.click();"); // Simulate automatic click
+		});
 
 		viewBtn.addClickListener(evt -> {
 
-			UI.getCurrent().getSession().setAttribute("subjectEntity", subjectEnt);
+			UI.getCurrent().getSession().setAttribute("idOfSubjectEntity", subjectEntity.getId());
+			
+			String pathToLiveAttendance = String.format("window.open('student/attendified/live/subject/%s', '_blank')", subjectEntity.getSubjectCode());
 
-			UI.getCurrent().getPage().executeJs("window.open('student/attendified/live', '_blank')");
+			UI.getCurrent().getPage().executeJs(pathToLiveAttendance);
 
 
 		});
@@ -430,7 +449,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 			confirmCloseAndResetDialog();
 		});
 
-		return new HorizontalLayout(viewBtn, closeAndResetBtn);
+		return new HorizontalLayout(viewBtn, downloadBtn, closeAndResetBtn);
 	}
 
 	private HorizontalLayout footerLayoutWhenStatusIsClosedAndDownloadable() {
@@ -464,13 +483,32 @@ public class OpenTheAttendanceDialog extends Dialog {
 						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
 				);
 
-		downloadBtn.addClickListener(download -> {
-			
-		});
-		
-		
 		viewBtn.addClickListener(view -> {
+
+			UI.getCurrent().getSession().setAttribute("subjectEntity", subjectEntity);
+
 			
+			String pathToLiveAttendance = String.format("window.open('student/attendified/live/subject/%s', '_blank')", subjectEntity.getSubjectCode());
+			
+			UI.getCurrent().getPage().executeJs(pathToLiveAttendance);
+
+		});
+
+		downloadBtn.addClickListener(download -> {
+
+			DownloadStudentAttendified exporter = new DownloadStudentAttendified(IdOfSelectedSubject, subjectService);
+			StreamResource excelResource = exporter.getExcelResource();
+			
+			Anchor downloadLink = new Anchor(excelResource, "");
+		    downloadLink.getElement().setAttribute("download", true); // Important!
+		    downloadLink.getStyle().set("display", "none"); // hide from view
+		    add(downloadLink); // add to layout
+		   
+		    downloadLink.getElement().executeJs("this.click();"); // Simulate automatic click
+			
+			subjectService.hasBeendownloadedStudentData(subjectEntity.getId());
+			UI.getCurrent().getPage().reload();
+
 		});
 
 		return new HorizontalLayout(viewBtn, downloadBtn);
@@ -491,10 +529,12 @@ public class OpenTheAttendanceDialog extends Dialog {
 		dialog.setConfirmButtonTheme("error primary");
 		dialog.addConfirmListener(event -> {
 
-			subjectEnt.setStatus("Closed");
-			subjectService.save(subjectEnt);
+			subjectEntity.setStatus("Closed");
 			
-			subjectEnt = subjectService.getById(IdOfSelectedSubject).get();
+			subjectEntity.getStudentAttentifiedEntity().clear();
+			subjectService.save(subjectEntity);
+			
+			subjectEntity = subjectService.getById(IdOfSelectedSubject).get();
 
 			r.run();
 			invokeDialog();
@@ -507,6 +547,13 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 	}
 
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		super.onDetach(detachEvent);
+		if (scheduler != null && !scheduler.isShutdown()) {
+			scheduler.shutdownNow();
+		}
+	}
 
 
 

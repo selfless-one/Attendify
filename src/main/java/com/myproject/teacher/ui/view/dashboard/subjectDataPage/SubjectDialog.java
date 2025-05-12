@@ -44,12 +44,25 @@ public class SubjectDialog extends Dialog {
 		layout.getStyle().set("width", "300px").set("max-width", "100%");
 
 		Button saveButton = new Button("Save", e -> {
-			boolean subjectCodeIsEmpty = subjectCodeField.getValue().isBlank();
-			boolean subjectDescIsEmpty = subjectDescField.getValue().isBlank();
+			
+			var subjectCodeValue = subjectCodeField.getValue().trim().toUpperCase();
+			var subjectDescValue = subjectDescField.getValue().trim();
+			
+			boolean subjectCodeIsEmpty = subjectCodeValue.isBlank();
+			boolean subjectDescIsEmpty = subjectDescValue.isBlank();
 
 			if (!subjectCodeIsEmpty && !subjectDescIsEmpty) {
+				
+				if (subjectCodeValue.contains(" ")) {
+					subjectCodeField.setInvalid(true);
+					subjectCodeField.setErrorMessage("whitespace is not allowed");
+					return;
+					
+				}
+				
+				
 
-				onSave.accept(subjectCodeField.getValue(), subjectDescField.getValue());
+				onSave.accept(subjectCodeValue, subjectDescValue);
 				
 				close();
 				
@@ -88,6 +101,13 @@ public class SubjectDialog extends Dialog {
 		Button cancelButton = new Button("Cancel", e -> close());
 
 		Span header = new Span("Add subject");
+		
+		header.getStyle().setFontSize("18px");
+		header.getStyle().setFontWeight("bold");
+		header.getStyle().setPaddingTop("10px");
+		header.getStyle().setPaddingBottom("3px");
+		header.getStyle().setPaddingLeft("8px");
+		
 		header.addClassNames(LumoUtility.TextColor.PRIMARY_CONTRAST,
 				LumoUtility.FontWeight.BOLD,
 				LumoUtility.FontSize.XLARGE,
