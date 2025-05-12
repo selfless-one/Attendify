@@ -90,6 +90,9 @@ public class TeacherSignupView extends VerticalLayout {
 						String result = teacherAccService.createAccount(signup.getUsername(), signup.getPassword(), tokenField.getValue());
 						
 						switch (result) {
+						case "Contain whitespaces" -> showErrorMessage(null, "Spaces are not allowed—please remove them.");
+						case "Username must be at least 5 characters long" -> showErrorMessage(null, "Username must be at least 5 characters long");
+						case "Password must be at least 5 characters long" ->  showErrorMessage(null, "Password must be at least 5 characters long");
 						case "Invalid token" -> showErrorMessage(null, "Invalid token");
 						case "Username already exists" -> showErrorMessage(null, "Username already exists");
 						case "Account created successfully" -> {

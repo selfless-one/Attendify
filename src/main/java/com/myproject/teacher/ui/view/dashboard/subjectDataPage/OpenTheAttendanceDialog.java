@@ -155,7 +155,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 		statusWrapper.setPadding(false);
 		statusWrapper.setMargin(false);
 
-		HorizontalLayout headlineWrapper = new HorizontalLayout(closeButton, headline,statusWrapper);
+		HorizontalLayout headlineWrapper = new HorizontalLayout(headline, statusWrapper, closeButton);
 
 		headlineWrapper.setWidthFull();
 		headlineWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -280,27 +280,35 @@ public class OpenTheAttendanceDialog extends Dialog {
 		
 		attendanceEndTimeToDisplay.getStyle()
 		.set("color", "#05b888")
-		.set("font-weight", "bold")
-		.set("margin-left", "5px")
-		.set("margin-right", "5px");
+		.set("font-weight", "bold");
+		//.set("margin-left", "5px");
+		//.set("margin-right", "5px");
 		
 		Span clockLabel = new Span("Time left: ");
-		Span closeOfTimeLabel = new Span("Ends at: "); 
-
-
-		HorizontalLayout content = new HorizontalLayout(clockLabel, clock, closeOfTimeLabel, attendanceEndTimeToDisplay);
+		Span closeOfTimeLabel = new Span("Ends at: ");
+		
+		clockLabel.getStyle().setFontSize("18px");
+		clock.getStyle().setFontSize("18px");
+		closeOfTimeLabel.getStyle().setFontSize("18px");
+		attendanceEndTimeToDisplay.getStyle().setFontSize("18px");
+		
+		HorizontalLayout content = new HorizontalLayout(clockLabel, clock);
 		//content.getStyle().setAlignItems(AlignItems.CENTER);
 		content.getStyle().setPaddingTop("1%");
-		content.setSpacing(false);
-
-		RouterLink attendifiedList = new RouterLink("attendified list", TeacherLoginView.class);
-		attendifiedList.getStyle().setMarginTop("5px");
-
-		VerticalLayout content1 = new VerticalLayout(content, attendifiedList);
+		content.setSpacing("8px");
+		content.getStyle().setPaddingBottom("13px");
+		
+		HorizontalLayout content2 = new HorizontalLayout(closeOfTimeLabel, attendanceEndTimeToDisplay);
+		content2.setSpacing("22px");
+		//content.getStyle().setPaddingTop("1%");
+		//content.setSpacing(false);
+		//content.getStyle().setPaddingBottom("13px");
+		
+		VerticalLayout content1 = new VerticalLayout(content, content2);
 		content1.setSpacing(false);
-		//content1.
+		//content1.setPadding(false);
 
-		content1.getStyle().setPaddingTop("10%").setPaddingBottom("1%");
+		content1.getStyle().setPaddingTop("10%").setPaddingBottom("3%");
 
 
 		return content1;
