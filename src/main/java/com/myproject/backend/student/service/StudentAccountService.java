@@ -71,21 +71,17 @@ public class StudentAccountService {
 		studentNum = toUpperCase(studentNum);
 		sectionName = toUpperCase(sectionName);
 		
-		if (containWhitespace(username, password, surname, firstname, studentNum, sectionName)) {
-			return "Contain whitespaces";
-		}
+		if (containWhitespace(username, password, surname, firstname, studentNum, sectionName)) return "Contain whitespaces";
 		
-		if (!sectionService.sectionNameExists(sectionName)) {
-			return "Section Not Exists";
-		}
+		if (username.length() < 5) return "Username must be at least 5 characters";
+			
+		if (password.length() < 5) return "Password must be at least 5 characters";
 		
-		if (sAccountRepository.existsByStudentNumber(studentNum)) {
-			return "Student Number already exists";
-		}
-		
-		if (sAccountRepository.existsByUsername(username)) {
-			return "Username already exists";
-		}
+		if (!sectionService.sectionNameExists(sectionName)) return "Section Not Exists";
+			
+		if (sAccountRepository.existsByStudentNumber(studentNum)) return "Student Number already exists";
+			
+		if (sAccountRepository.existsByUsername(username)) return "Username already exists";
 		
 		sAccountRepository.save(StudentAccountEntity.builder()
 				.username(username)
@@ -97,5 +93,12 @@ public class StudentAccountService {
 				.build());
 		
 		return "Account Created Success";
+	}
+	
+	
+	public void updateSectionName(String newSectionName, StudentAccountEntity studentAcc) {
+		StudentAccountEntity acc = getAccountByUsername(studentAcc.getUsername());
+		acc.setSectionName(newSectionName);
+		sAccountRepository.save(acc);
 	}
 }
