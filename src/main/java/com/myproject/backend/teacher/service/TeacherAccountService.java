@@ -74,4 +74,37 @@ public class TeacherAccountService {
     		
     	}, () -> new Exception("Account not found by ID: " + acc.getId()));
     }
+    
+    public void deleteSectionByName(String sectionName, TeacherAccountEntity teacherAccount) {
+    	TeacherAccountEntity t = getAccountByUsername(teacherAccount.getUsername());
+    	t.getSections().removeIf(section -> section.getSectionName().equals(sectionName));
+    	saveChanges(t);
+    }
+    
+    public void updateSection(String newSectionName, String newCourseName, String sectionNameToUpdate, TeacherAccountEntity teacherAccountEntity) {
+
+    	TeacherAccountEntity teacherAccount = getAccountByUsername(teacherAccountEntity.getUsername());
+    	
+    	boolean[] hasChanges = new boolean[1];
+    	
+    	teacherAccount.getSections().forEach(section -> {
+    		
+    		if (section.getSectionName().equals(sectionNameToUpdate)) {
+    			
+    			if (!section.getSectionName().equals(newSectionName)) {
+    				section.setSectionName(newSectionName);
+    				hasChanges[0] = true;
+    			}
+    			if (!section.getCourse().equals(newCourseName)) {
+    				section.setCourse(newCourseName);
+    				hasChanges[0] = true;
+    			}
+    			return;
+    		}
+    	});
+    	
+    	if (hasChanges[0]) saveChanges(teacherAccount);
+    }
+    
+    
 }
