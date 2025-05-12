@@ -131,6 +131,11 @@ public class IdentityDialog extends Dialog {
 							LumoUtility.Margin.Bottom.SMALL, 
 							LumoUtility.TextColor.PRIMARY_CONTRAST);
 					
+					header.getStyle().setColor("white");
+
+					header.getStyle().setPaddingBottom("5px");
+					header.getStyle().setPaddingLeft("8px");
+					header.getStyle().setPaddingTop("10px");
 					
 					String surnameC = surname.getValue().trim(), firstnameC = firstname.getValue().trim();
 		    		
@@ -148,9 +153,23 @@ public class IdentityDialog extends Dialog {
 					Button confirmBtn = new Button("Confirm");
 					Button cancelBtn = new Button("Cancel");
 					
+					confirmBtn.getStyle()
+					.set("color", "white")
+					.set("font-size", "14px")
+					.set("background-color", "#4460EF")
+					.set("border-radius", "10px")
+					.set("padding", "10px 12px")
+					.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+					.set("transition", "transform 0.2s ease-in-out");
+					//	logoutBtn.getElement().getThemeList().add("error");
+					confirmBtn.getElement().executeJs(
+							"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+									"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+							);
+					
 					Dialog dialogConfirm = new Dialog();
 					
-					dialogConfirm.setTop("342px");
+					dialogConfirm.setTop("375px");
 					dialogConfirm.setWidth("280px");
 					dialogConfirm.setCloseOnOutsideClick(false);
 					dialogConfirm.getHeader().add(header);
