@@ -1,5 +1,6 @@
 package com.myproject.backend.student.service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -19,12 +20,30 @@ public class StudentAccountService {
 		this.sAccountRepository = sAccountRepository;
 		this.sectionService = sectionService;
 	}
-
+	
+	private String trimData(String data) {
+		return data.trim();
+	}
+	
+//	private String capitalize(String data) {
+//		
+//		var d = trimData(data).toLowerCase();
+//		return d.substring(0, 1) + d.substring(1);
+//	}
+	
+	private String toUpperCase(String data) {
+		return trimData(data).toUpperCase();
+	}
+	
+	private boolean containWhitespace(String... data) {
+		
+		boolean result = Arrays.stream(data).anyMatch(d -> trimData(d).contains(" "));
+		return result;
+	}
 
 	public List<SectionEntity> getSectionBySectionName(String sectionName) {
 		return sectionService.getSectionByName(sectionName);
 	}
-	
 	
 	public boolean authenticate(String username, String password) {
 		
@@ -35,9 +54,7 @@ public class StudentAccountService {
 	}
 	
 	public StudentAccountEntity getAccountByUsername(String username) {
-		
-		return sAccountRepository.findByUsername(username).orElseThrow();
-		
+		return sAccountRepository.findByUsername(username).orElseThrow();	
 	}
 	
 	public String createAccount(String username, 
@@ -46,6 +63,17 @@ public class StudentAccountService {
 			String firstname, 
 			String studentNum, 
 			String sectionName) {
+		
+		username = trimData(username);
+		surname = trimData(surname);
+		firstname = trimData(firstname);
+		
+		studentNum = toUpperCase(studentNum);
+		sectionName = toUpperCase(sectionName);
+		
+		if (containWhitespace(username, password, surname, firstname, studentNum, sectionName)) {
+			return "Contain whitespaces";
+		}
 		
 		if (!sectionService.sectionNameExists(sectionName)) {
 			return "Section Not Exists";
@@ -70,7 +98,4 @@ public class StudentAccountService {
 		
 		return "Account Created Success";
 	}
-	
-	
-
 }
