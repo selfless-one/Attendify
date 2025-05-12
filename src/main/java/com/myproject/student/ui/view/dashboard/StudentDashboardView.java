@@ -8,6 +8,7 @@ import com.myproject.backend.student.entity.StudentAccountEntity;
 import com.myproject.backend.student.service.StudentAccountService;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.service.SectionService;
+import com.myproject.backend.teacher.service.StudentAttendifiedService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectClose;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectOpen;
@@ -43,6 +44,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	private SubjectService subjectService;
 	private SectionService sectionService;
 
+	
+	private final StudentAttendifiedService studentAttendifiedService;
 
 	private StudentAccountEntity studentAccount;
 	
@@ -69,8 +72,12 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	private Grid<SubjectEntity> subjectGrid;
 	private List<SubjectEntity> subjects;
 
-	public StudentDashboardView(StudentAccountService studentAccountService, SubjectService subjectService, SectionService sectionService) {
+	public StudentDashboardView(StudentAccountService studentAccountService, 
+			SubjectService subjectService, 
+			SectionService sectionService,
+			StudentAttendifiedService studentAttendifiedService) {
 
+		this.studentAttendifiedService = studentAttendifiedService;
 		this.studentAccountService = studentAccountService;
 		this.sectionService = sectionService;
 		this.subjectService = subjectService;
@@ -118,6 +125,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		subjectGrid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
 		//subjectGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		subjectGrid.setAllRowsVisible(true);
+		subjectGrid.setSizeUndefined();
 		
 		Span field1 = new Span("Subject Code");
 		Span field2 = new Span("Description");
@@ -168,20 +176,20 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 
 		subjectGrid.setWidthFull();
 		subjectGrid.setHeight("100%");
-		subjectGrid.setEmptyStateText("Your subjects for section " + studentSection + " will appear here.");
+		subjectGrid.setEmptyStateText("You'll see your subjects for " + studentSection + " listed here.");
 		//subjectGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
 		subjectGrid.setPartNameGenerator(subject -> !subject.getSubjectCode().isEmpty() ? "high-rating" : "low-rating");
 
 		// Add custom grid styling
-//		subjectGrid.getElement().executeJs(
-//				"const style = document.createElement('style');" +
-//						"style.innerHTML = `" +
-//						"  vaadin-grid::part(high-rating) { background-color: var(--lumo-success-color-10pct); }" +
-//						"  vaadin-grid::part(low-rating) { background-color: var(--lumo-error-color-10pct); }" +
-//						"`;" +
-//						"document.head.appendChild(style);"
-//				);
+		subjectGrid.getElement().executeJs(
+				"const style = document.createElement('style');" +
+						"style.innerHTML = `" +
+						"  vaadin-grid::part(high-rating) { background-color: var(--lumo-success-color-10pct); }" +
+						"  vaadin-grid::part(low-rating) { background-color: var(--lumo-error-color-10pct); }" +
+						"`;" +
+						"document.head.appendChild(style);"
+				);
 
 		// Load subject data
 		loadSubjectData();
@@ -224,11 +232,32 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
     // ---------------------------------- grid status field util
     private final SerializableBiConsumer<Span, SubjectEntity> statusComponentUpdater = (
             span, subject) -> {
-        boolean isOpen = "Open".equals(subject.getStatus());
-        String theme = String.format("badge %s",
-                isOpen ? "success" : "error");
-        span.getElement().setAttribute("theme", theme);
+//        boolean isOpen = "Open".equals(subject.getStatus());
+//        String theme = String.format("badge %s",
+//                isOpen ? "success" : "error");
+//        span.getElement().setAttribute("theme", theme);
         span.setText(subject.getStatus());
+        
+    	
+		if ("Open".equals(subject.getStatus())) {
+			
+			span.getStyle().setBackgroundColor("#05b888");
+			span.getStyle().setPaddingRight("16px");
+			span.getStyle().setPadding("5px");
+		}
+		
+		if ("Closed".equals(subject.getStatus())) {
+			
+			span.getStyle().setBackgroundColor("#ee4654");
+			span.getStyle().setPadding("5px");
+
+		}
+		
+		span.getStyle().setColor("White");
+		span.getStyle().setBorderRadius("3px");
+		span.getStyle().setFontSize("14px");
+		
+		span.setText(subject.getStatus());
     };
     
     private ComponentRenderer<Span, SubjectEntity> createStatusComponentRenderer() {
@@ -257,7 +286,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
     }
     
     private void showOpenAttendifyDialog(SubjectEntity subj) {
-		DialogSubjectOpen dialog = new DialogSubjectOpen(this::updateSubjectStatus, subj, subjectService, studentAccountService);
+		DialogSubjectOpen dialog = new DialogSubjectOpen(this::updateSubjectStatus, subj, subjectService, studentAccountService, studentAttendifiedService);
 		dialog.open();
     }
 

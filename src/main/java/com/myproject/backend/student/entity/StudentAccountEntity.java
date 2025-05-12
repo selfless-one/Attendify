@@ -35,4 +35,5 @@ public class StudentAccountEntity {
 	private String course;
 	
 	private String sectionName;
+	
 }

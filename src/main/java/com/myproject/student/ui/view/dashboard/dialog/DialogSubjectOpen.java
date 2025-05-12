@@ -4,6 +4,7 @@ import com.myproject.backend.student.entity.StudentAccountEntity;
 import com.myproject.backend.student.service.StudentAccountService;
 import com.myproject.backend.teacher.entity.StudentAttentifiedEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
+import com.myproject.backend.teacher.service.StudentAttendifiedService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.student.ui.view.StudentLoginView;
 import com.vaadin.flow.component.UI;
@@ -27,9 +28,10 @@ public class DialogSubjectOpen extends Dialog {
 	private static final long serialVersionUID = 1L;
 	
 	private final SubjectService subjectService;
-	
 	private StudentAccountEntity studentAccount;
 	private SubjectEntity subjectEntity;
+	
+	private StudentAttendifiedService studentAttendifiedService;
 	
 	private String studentUsernameSessioned = (String) UI.getCurrent().getSession().getAttribute("studentUsername");
 	private Integer idOfSelectedSubject = (Integer) UI.getCurrent().getSession().getAttribute("idOfSelectedSubject");
@@ -122,11 +124,13 @@ public class DialogSubjectOpen extends Dialog {
 	public DialogSubjectOpen(Runnable r, 
 			SubjectEntity subjectEntity, 
 			SubjectService subjectService,
-			StudentAccountService studentAccountService) {
+			StudentAccountService studentAccountService,
+			StudentAttendifiedService studentAttendifiedService) {
 
 		this.r = r;
 		this.subjectEntity = subjectEntity;
 		this.subjectService = subjectService;
+		this.studentAttendifiedService = studentAttendifiedService;
 		
 		if (studentUsernameSessioned == null || idOfSelectedSubject == 0) {
 			UI.getCurrent().navigate(StudentLoginView.class);
@@ -162,9 +166,17 @@ public class DialogSubjectOpen extends Dialog {
 		courseF.setRequired(true);
 		emailF.setRequired(true);
 		
+		courseF.setHelperText("e.g. BSIT");
+		
+		var surname = studentAccount.getSurname();
+		var firstname = studentAccount.getFirstname();
+		
+		var capitalizeSurname = surname.substring(0, 1).toUpperCase() + surname.substring(1);
+		var capitalizefirstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1);
+		
 		studentNumberF.setValue(studentAccount.getStudentNumber());
-		surnameF.setValue(studentAccount.getSurname());
-		firstnameF.setValue(studentAccount.getFirstname());
+		surnameF.setValue(capitalizeSurname);
+		firstnameF.setValue(capitalizefirstname);
 		//courseF.setValue(studentAccount.getCourse());
 		//emailF.setValue(studentAccount.getEmail());
 		
@@ -266,18 +278,48 @@ public class DialogSubjectOpen extends Dialog {
 		dialog.addCancelListener(event -> dialog.close());
 		dialog.setConfirmText("Confirm");
 		dialog.setConfirmButtonTheme("error primary");
+		
 		dialog.addConfirmListener(event -> {
 
+			subjectEntity = subjectService.getById(idOfSelectedSubject).get();
+			
 			// double check if status is not closed
 			if (subjectEntity.getStatus().equals("Open")) {
 
-
+				var studnum = studentNumberF.getValue().trim();
+				var surname = surnameF.getValue().trim();
+				var fname = firstnameF.getValue().trim();
+				var course = courseF.getValue().toUpperCase().trim();
+				var email = emailF.getValue().trim();
+				
+//				String[] data = {studnum, surname, fname, course, email};
+//				
+//				boolean containWhiteSpaces = Arrays.stream(data).anyMatch(e -> e.contains(" "));
+//				
+//				if (containWhiteSpaces) {
+//					Popover info = new Popover();
+//					
+//					info.setTarget(submitBtn);
+//				}
+				
+				if (studentAttendifiedService.studentNumberAlreadyExists(studnum)) {
+					
+					ConfirmDialog alreadySubmitDialog = new ConfirmDialog("Duplicate Submission", 
+							"Student number " + studnum + " is already recorded", 
+							"Ok", confirm -> this.close());
+					
+					alreadySubmitDialog.open();
+					return;
+					
+				}
+				
 				StudentAttentifiedEntity attendifyToSave = StudentAttentifiedEntity.builder()
-						.studentNumber(studentNumberF.getValue())
-						.surname(surnameF.getValue())
-						.firstname(firstnameF.getValue())
-						.course(courseF.getValue())
-						.email(emailF.getValue())
+						.studentNumber(studnum)
+						.surname(surname)
+						.firstname(fname)
+						.course(course)
+						.email(email)
+						.subjectCode(subjectEntity)
 						.build();
 
 				subjectEntity.getStudentAttentifiedEntity().add(attendifyToSave);

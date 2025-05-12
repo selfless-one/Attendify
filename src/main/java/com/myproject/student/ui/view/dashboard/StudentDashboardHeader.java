@@ -38,13 +38,10 @@ public class StudentDashboardHeader extends HorizontalLayout {
 		Button logoutBtn = new Button("Log out", e -> {
 			
 			ConfirmDialog confirmLogout = new ConfirmDialog();
-			confirmLogout.open();
-			confirmLogout.setHeader("Confirm Logout");
-			confirmLogout.setText("logout");
+			
+			confirmLogout.setText("Confirm Logout...");
 			confirmLogout.setConfirmText("confirm");
 			confirmLogout.setCancelable(true);
-			
-			confirmLogout.addCancelListener(cancel -> confirmLogout.close());
 			
 			confirmLogout.addConfirmListener(evt -> {
 				confirmLogout.close();
@@ -53,7 +50,8 @@ public class StudentDashboardHeader extends HorizontalLayout {
 				UI.getCurrent().navigate(StudentLoginView.class);
 			});
 			
-			
+			confirmLogout.open();
+
 		});
 		
 		logoutBtn.getStyle()

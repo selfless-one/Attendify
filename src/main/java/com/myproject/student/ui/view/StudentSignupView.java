@@ -208,6 +208,7 @@ public class StudentSignupView extends VerticalLayout {
 						case "Section Not Exists" -> showErrorMessage("Section Not Exists");
 						case "Student Number already exists" -> showErrorMessage("Student Number already exists");
 						case "Username already exists" -> showErrorMessage("Username already exists");
+						case "Contain whitespaces" -> showErrorMessage("Spaces are not allowed—please remove them.");
 						case "Account Created Success" -> {
 							
 							ConfirmDialog successDialog = new ConfirmDialog();
