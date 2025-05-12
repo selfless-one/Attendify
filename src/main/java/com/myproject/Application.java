@@ -9,10 +9,12 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.Clock;
 
 @Push
+@EnableScheduling
 @SpringBootApplication
 @Theme(variant = Lumo.DARK)
 @CssImport("./styles/shared-styles.css")  // Include any other styles or resources
