@@ -53,5 +53,4 @@ public class SectionService {
 	public boolean sectionNameExists(String sectionName) {
 		return sectionRepo.existsBySectionName(sectionName);
 	}
-
 }

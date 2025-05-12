@@ -1,5 +1,7 @@
 package com.myproject.backend.teacher.service;
 
+import java.util.Arrays;
+
 import org.springframework.stereotype.Service;
 
 import com.myproject.backend.teacher.entity.TeacherAccountEntity;
@@ -24,6 +26,15 @@ public class TeacherAccountService {
     	username = trimData(username);
     	password = trimData(password);
     	token = trimData(token);
+    	
+    	String[] s = {username, password};
+    	boolean containWhiteSpaces = Arrays.stream(s).anyMatch(d -> d.contains(" "));
+    	
+    	if (containWhiteSpaces) return "Contain whitespaces";
+    	
+    	if (username.length() < 5) return "Username must be at least 5 characters long";
+    	
+    	if (password.length() < 5) return "Password must be at least 5 characters long";
     	
         if (!myToken.equals(token)) return "Invalid token";
         
