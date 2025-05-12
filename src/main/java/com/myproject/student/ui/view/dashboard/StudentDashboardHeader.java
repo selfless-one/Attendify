@@ -53,21 +53,20 @@ public class StudentDashboardHeader extends HorizontalLayout {
 			confirmLogout.open();
 
 		});
-		
+
 		logoutBtn.getStyle()
-		.set("color", "white")
- 		.set("font-size", "14px")
-		.set("background-color", "#4460EF")
+		.setColor("white")
+		.set("background-color", "#822020")
 		.set("border-radius", "10px")
-		.set("padding", "10px 20px")
+		.setHeight("35px")
 		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
 		.set("transition", "transform 0.2s ease-in-out");
-	//	logoutBtn.getElement().getThemeList().add("error");
 		logoutBtn.getElement().executeJs(
 				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
 						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
-				);
-		
+				);	
+
+	        
 		//logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
 		add(studentLabel, sectionLabel, logoutBtn);

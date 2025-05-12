@@ -205,10 +205,12 @@ public class StudentSignupView extends VerticalLayout {
 					ui.access(() -> {
 						
 						switch (result) {
+						case "Contain whitespaces" -> showErrorMessage("Spaces are not allowed—please remove them.");
+						case "Username must be at least 5 characters" -> showErrorMessage("Username must be at least 5 characters");
+						case "Password must be at least 5 characters" -> showErrorMessage("Password must be at least 5 characters");
 						case "Section Not Exists" -> showErrorMessage("Section Not Exists");
 						case "Student Number already exists" -> showErrorMessage("Student Number already exists");
 						case "Username already exists" -> showErrorMessage("Username already exists");
-						case "Contain whitespaces" -> showErrorMessage("Spaces are not allowed—please remove them.");
 						case "Account Created Success" -> {
 							
 							ConfirmDialog successDialog = new ConfirmDialog();

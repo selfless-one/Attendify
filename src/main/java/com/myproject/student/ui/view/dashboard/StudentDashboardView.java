@@ -13,6 +13,8 @@ import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectClose;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectOpen;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -64,6 +67,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		studentAccount = studentAccountService.getAccountByUsername(studentUsernameSessioned);
 		
 		this.studentSection = studentAccount.getSectionName();
+		
+		verifyIfSectionExists();
 		
 		buildUI();
 	}
@@ -145,6 +150,9 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		
 
 		subjectGrid.addSelectionListener(selection -> {
+			
+			verifyIfSectionExists();
+			
 			Optional<SubjectEntity> selectedSub = selection.getFirstSelectedItem();
 
 			selectedSub.ifPresent(subject -> {
@@ -155,6 +163,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 					Thread.sleep(2000);
 
 					if (subject.getStatus().equals("Open"))  {
+						
+						verifyIfSectionExists();
 						
 						UI.getCurrent().getSession().setAttribute("idOfSelectedSubject", subject.getId());
 						
@@ -314,7 +324,142 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
         
         add(header, body);
     }
+    
+    
+    
+    
+    private void verifyIfSectionExists() {
+    	
+    	// if not exists anymore
+    	if (!sectionService.sectionNameExists(studentSection)) {
+    		
+    		Dialog dialogForSectionNotExists = new Dialog();
+    		dialogForSectionNotExists.setCloseOnOutsideClick(false);
+    		dialogForSectionNotExists.setCloseOnEsc(false);
+    		
+    		Span headerLabel = new Span("Section " + studentSection + " no longer exists");
+    		headerLabel.getStyle().setColor("white");
+    		headerLabel.getStyle().setPaddingBottom("10px");
+    		headerLabel.getStyle().setPaddingLeft("8px");
+    		headerLabel.getStyle().setPaddingTop("15px");
+    		headerLabel.getStyle().setFontWeight("bold");
+    		
+    		Span label = new Span("It may have been modified or removed");
+    		Span label2 = new Span("by your Professor.");
+    		label.getStyle().setColor("#ee4654");
+    		label2.getStyle().setColor("#ee4654");
+    		
+    		VerticalLayout wrapper1 = new VerticalLayout(label, label2);
+    		wrapper1.setSpacing(false);
+    		wrapper1.setPadding(false);
+    		wrapper1.getStyle().setPaddingTop("18px");
+    		wrapper1.getStyle().setPaddingBottom("20px");
+    		
+    		Span label3 = new Span("Provide new section name");
+    		TextField newSectionNameField = new TextField();
+    		newSectionNameField.setRequired(true);
+    		
+    		VerticalLayout wrapper2 = new VerticalLayout(label3, newSectionNameField);
+    		wrapper2.setSpacing(false);
+    		wrapper2.setPadding(false);
+    		
+    		
+    		VerticalLayout content = new VerticalLayout(wrapper1, wrapper2);
+    		content.setPadding(true);
+    		content.setSpacing(false);
+    		
+    		Button saveBtn = new Button("Save");
+    		saveBtn.getStyle()
+    		.set("color", "white")
+    		.set("font-size", "14px")
+    		.set("background-color", "#4460EF")
+    		.set("border-radius", "10px")
+    		.set("padding", "10px 20px")
+    		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+    		.set("transition", "transform 0.2s ease-in-out");
+    		saveBtn.getElement().executeJs(
+    				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+    						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+    				);
+    		
+    		saveBtn.addClickListener(save -> {
+    			
+    			var newSectionValue = newSectionNameField.getValue().toUpperCase().trim();
+    			
+    			if (newSectionValue.isEmpty()) {
+    				newSectionNameField.setInvalid(true);
+    				newSectionNameField.setErrorMessage("required");
+    				return;
+    			} else if (newSectionValue.contains(" ")) {
+    				newSectionNameField.setInvalid(true);
+    				newSectionNameField.setErrorMessage("whitespace is not allowed");
+    				return;
+    			} else {
+    				
+    				Dialog loadingDialog = new Dialog();
+					ProgressBar progressBar = new ProgressBar();
+					loadingDialog.setModal(true); // Blocks interaction
+					loadingDialog.setCloseOnEsc(false);
+					loadingDialog.setCloseOnOutsideClick(false);
+					progressBar.setIndeterminate(true); // Animate
+					loadingDialog.add(progressBar);
+    				
+    				if (sectionService.sectionNameExists(newSectionValue)) {
+    					
+    					getUI().ifPresent(ui -> {
+    						ui.access(() -> loadingDialog.open());
+    						new Thread(() -> {
+        						try {
+    								Thread.sleep(3000);
+    							} catch (InterruptedException e) {
+    								e.printStackTrace();
+    							}
+        						ui.access(() -> {
+        							loadingDialog.close();
+        							
+        							studentAccountService.updateSectionName(newSectionValue, studentAccount);
+        							ui.getPage().reload();
+        							
+        						});
+        					}).start();
+    					});
+    					
+    				} else {
+    					
+    					getUI().ifPresent(ui -> {
+    						ui.access(() -> loadingDialog.open());
+    						new Thread(() -> {
+        						try {
+    								Thread.sleep(3000);
+    							} catch (InterruptedException e) {
+    								e.printStackTrace();
+    							}
+        						ui.access(() -> {
+        							loadingDialog.close();
+        							newSectionNameField.setInvalid(true);
+        	        				newSectionNameField.setErrorMessage("section " + newSectionValue + " not found");
+        						});
+        					}).start();
+    					});
+    				}
+    				
+    				
+    			}
+    			
+    			
+    		});
 
+    		
+    		dialogForSectionNotExists.getHeader().add(headerLabel);
+    		dialogForSectionNotExists.add(content);
+    		dialogForSectionNotExists.getFooter().add(saveBtn);
+    		
+    		dialogForSectionNotExists.open();
+    		
+    	}
+    	
+    	
+    }
 
 
 
