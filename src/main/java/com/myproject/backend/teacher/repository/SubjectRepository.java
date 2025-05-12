@@ -12,5 +12,6 @@ import java.util.List;
 public interface SubjectRepository extends JpaRepository<SubjectEntity, Integer> {
 		
 	List<SubjectEntity> findBySection(SectionEntity section);
+	List<SubjectEntity> findByStatus(String status);
 	
 }
