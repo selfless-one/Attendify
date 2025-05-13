@@ -50,7 +50,7 @@ public class SubjectEntity {
 	@JoinColumn(name = "section_id")
 	private SectionEntity section;
 	
-	@OneToMany(mappedBy = "subjectCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "subjectCode", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private List<StudentAttentifiedEntity> studentAttentifiedEntity;
 
 }
