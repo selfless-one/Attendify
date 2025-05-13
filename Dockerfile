@@ -1,29 +1,22 @@
-# Use an official OpenJDK runtime as a parent image for build stage
-FROM openjdk:17-jdk-slim as build
+FROM openjdk:17-jdk-slim
+
+# Install Maven
+RUN apt-get update && apt-get install -y maven
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the pom.xml (or build.gradle) and the source code to the container
+# Copy pom.xml to the container
 COPY pom.xml .
 
-# Download the dependencies
+# Download the dependencies offline
 RUN mvn dependency:go-offline
 
 # Copy the rest of the application code
-COPY src ./src
+COPY . .
 
 # Build the application
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
-# Use the same OpenJDK image for the runtime stage
-FROM openjdk:17-jdk-slim
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy the JAR file from the build stage to the container
-COPY --from=build /app/target/*.jar /app/app.jar
-
-# Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Set the entry point for your application
+CMD ["java", "-jar", "target/your-app.jar"]
