@@ -16,9 +16,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+@PageTitle("Professor Sign Up")
 @Route("professor/signup")
 public class TeacherSignupView extends VerticalLayout {
 
@@ -90,6 +92,9 @@ public class TeacherSignupView extends VerticalLayout {
 						String result = teacherAccService.createAccount(signup.getUsername(), signup.getPassword(), tokenField.getValue());
 						
 						switch (result) {
+						case "Contain whitespaces" -> showErrorMessage(null, "Spaces are not allowed—please remove them.");
+						case "Username must be at least 5 characters long" -> showErrorMessage(null, "Username must be at least 5 characters long");
+						case "Password must be at least 5 characters long" ->  showErrorMessage(null, "Password must be at least 5 characters long");
 						case "Invalid token" -> showErrorMessage(null, "Invalid token");
 						case "Username already exists" -> showErrorMessage(null, "Username already exists");
 						case "Account created successfully" -> {
@@ -145,10 +150,29 @@ public class TeacherSignupView extends VerticalLayout {
 				LumoUtility.Margin.NONE,
 				LumoUtility.TextColor.PRIMARY
 				);
+		
+		loginLink.getStyle().setFontSize("14px");
+		loginLink.getStyle().setPaddingBottom("10px");
+		loginLink.getStyle().setPaddingTop("10px");
+		
 		loginLink.getStyle().set("text-decoration", "none"); // Optional: remove underline if you want
 
 		// Student toggle button
 		Button toggleBtn = new Button("I am Professor");
+		
+
+		toggleBtn.getStyle().setHeight("30px");		
+		
+		toggleBtn.getStyle()
+		.set("z-index", "1")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		toggleBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);	
+
+		
 		toggleBtn.addClassNames(
 				LumoUtility.Margin.Top.MEDIUM,
 				LumoUtility.Margin.Top.SMALL,
@@ -159,6 +183,7 @@ public class TeacherSignupView extends VerticalLayout {
 				LumoUtility.Height.SMALL,
 				LumoUtility.FontSize.SMALL
 				);
+		
 		toggleBtn.getStyle().set("background-color", "#4460EF");
 		toggleBtn.getStyle().set("color", "WHITE");
 

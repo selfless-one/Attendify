@@ -4,6 +4,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -18,6 +20,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
@@ -26,8 +29,6 @@ import com.myproject.backend.teacher.service.SectionService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
-import com.myproject.teacher.ui.view.dashboard.DashboardHeader;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
@@ -36,7 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Route("professor/username/:username/subjectlist/section/:section")
-public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
+public class SubjectView extends VerticalLayout implements BeforeEnterObserver, HasDynamicTitle {
 
 	private static final long serialVersionUID = 1L;
 
@@ -70,10 +71,15 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		this.teacherAccService = teacherAccService;
 		this.sectionService = sectionService;
 		this.subjectService = subjectService;
-
+		
 		setSizeFull();
 		setAlignItems(Alignment.CENTER);
 		//setJustifyContentMode(JustifyContentMode.s);
+	}
+	
+	@Override
+	public String getPageTitle() {
+		return sectionNamePath + " subjects";
 	}
 
 	@Override
@@ -103,7 +109,7 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	}
 
 	private void setupHeader() {
-		header = new DashboardHeader(teacherAccount, teacherAccService);
+		header = new SubjectHeader(teacherAccount, teacherAccService);
 	}
 
 	private void setupTopbarInBody() {
@@ -150,7 +156,9 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		subjectsToDisplayInGrid.setWidthFull();
 		subjectsToDisplayInGrid.setHeight("100%");
 		subjectsToDisplayInGrid.setEmptyStateText("Your list of subject for section " + sectionNamePath + " will appear here.");
-		subjectsToDisplayInGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		subjectsToDisplayInGrid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
+		subjectsToDisplayInGrid.setAllRowsVisible(true);
+		subjectsToDisplayInGrid.setSizeUndefined();
 		subjectsToDisplayInGrid.setPartNameGenerator(subject -> !subject.getSubjectCode().isEmpty() ? "high-rating" : "low-rating");
 
 		// Add custom grid styling
@@ -172,10 +180,25 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 						"}';"
 				);
 
-		subjectsToDisplayInGrid.addColumn(Subject::getSubjectCode).setHeader("Subject Code").setAutoWidth(true);
-		subjectsToDisplayInGrid.addColumn(Subject::getSubjectDescription).setHeader("Description").setAutoWidth(true);
-		subjectsToDisplayInGrid.addColumn(Subject::getDateCreated).setHeader("Date Added").setAutoWidth(true);
-		subjectsToDisplayInGrid.addColumn(createStatusComponentRenderer()).setHeader("Status");
+		Span field1 = new Span("Subject Code");
+		Span field2 = new Span("Description");
+		Span field3 = new Span("Date Added");
+		Span field4 = new Span("Status");
+		
+
+		List.of(field1, field2, field3, field4).forEach(field -> {
+			field.getStyle().setFontWeight("bold");
+			field.getStyle().setFontSize("15px");
+		});
+		
+		
+		DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("MM-dd-yy hh:mm:a");
+			
+		subjectsToDisplayInGrid.addColumn(Subject::getSubjectCode).setHeader(field1).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+		subjectsToDisplayInGrid.addColumn(Subject::getSubjectDescription).setHeader(field2).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+		subjectsToDisplayInGrid.addColumn(source -> source.getDateCreated().formatted(dateTimeFormat)).setHeader(field3).setAutoWidth(true)
+		.setTextAlign(ColumnTextAlign.CENTER);
+		subjectsToDisplayInGrid.addColumn(createStatusComponentRenderer()).setHeader(field4).setTextAlign(ColumnTextAlign.CENTER);
 
 
 		subjectsToDisplayInGrid.addSelectionListener(selection -> {
@@ -185,15 +208,15 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 
 				System.out.println("Selected subject: " + subject.getSubjectDescription());
 
-				try {
-					Thread.sleep(2000);
+//				try {
+				//	Thread.sleep(2000);
 
 					showOpenAttendifyDialog(subject.getId());
 
-				} catch (InterruptedException e1) {
-
-					e1.printStackTrace();
-				}
+//				} catch (InterruptedException e1) {
+//
+//					e1.printStackTrace();
+//				}
 
 
 			});
@@ -208,7 +231,6 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 
 		bodyContentLayout = new VerticalLayout(topbarInBody, subjectsToDisplayInGrid);
 		bodyContentLayout.setPadding(false);
-		bodyContentLayout.setSpacing(false);
 		bodyContentLayout.setSizeFull();
 	}
 
@@ -274,10 +296,29 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	// ---------------------------------- grid status field util
 	private final SerializableBiConsumer<Span, Subject> statusComponentUpdater = (
 			span, subject) -> {
-				boolean isOpen = "Open".equals(subject.getStatus());
-				String theme = String.format("badge %s",
-						isOpen ? "success" : "error");
-				span.getElement().setAttribute("theme", theme);
+			//	boolean isOpen = "Open".equals(subject.getStatus());
+//				String theme = String.format("badge %s",
+//						isOpen ? "success" : "error");
+//				span.getElement().setAttribute("theme", theme);
+//				
+				if ("Open".equals(subject.getStatus())) {
+					
+					span.getStyle().setBackgroundColor("#05b888");
+					span.getStyle().setPaddingRight("13px");
+					span.getStyle().setPadding("5px");
+				}
+				
+				if ("Closed".equals(subject.getStatus())) {
+					
+					span.getStyle().setBackgroundColor("#ee4654");
+					span.getStyle().setPadding("5px");
+
+				}
+				
+				span.getStyle().setColor("White");
+				span.getStyle().setBorderRadius("3px");
+				span.getStyle().setFontSize("14px");
+				
 				span.setText(subject.getStatus());
 			};
 
@@ -301,7 +342,7 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 	}
 
 	private void showOpenAttendifyDialog(Integer selectedSubjectId) {
-		OpenTheAttendanceDialog dialog = new OpenTheAttendanceDialog(this::updateSubjectStatus, selectedSubjectId, subjectService);
+		OpenTheAttendanceDialog dialog = new OpenTheAttendanceDialog(this::syncSubjectsData, selectedSubjectId, subjectService);
 		dialog.open();
 	}
 
@@ -333,11 +374,31 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 
 			subjects.add(new Subject(subs.getId(), subs.getSubjectCode(), subs.getSubjectDescription(), formattedDateTime, subs.getStatus()));
 		});
+		
+		subjectsToDisplayInGrid.setItems(subjects);
 	}
 
 	private void addSubject(String subjectCode, String subjectDesc) {
 		
 		LocalDateTime now = LocalDateTime.now();
+		
+//		subjectCode = subjectCode.toUpperCase().trim();
+//		subjectDesc = subjectDesc.trim();
+
+		selectedSection = sectionService.getAccountById(idOfSelectedSection).orElseThrow();
+
+		var sectionNameAlreadyExists = selectedSection.getSubjects().stream()
+				.anyMatch(section -> section.getSubjectCode().equals(subjectCode));
+
+		if (sectionNameAlreadyExists) {
+
+			ConfirmDialog alreadyExistsDialog = new ConfirmDialog();
+			alreadyExistsDialog.setText("Subject name already exists...");
+			alreadyExistsDialog.setConfirmText("Ok");
+			alreadyExistsDialog.open();
+
+			return;
+		}
 		
 		SubjectEntity newSub = SubjectEntity.builder()
 		.subjectCode(subjectCode)
@@ -352,6 +413,7 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		sectionService.saveChanges(selectedSection);
 		
 		syncSubjectsData();
-		subjectsToDisplayInGrid.setItems(subjects);
+		
 	}
+
 }

@@ -19,4 +19,24 @@ vaadin-confirm-dialog-overlay > [slot="confirm-button"] {
 
 .teacher-loginform vaadin-button[theme~="submit"] {
 	background-color: #4460EF;
+	
+	
 }
+
+
+/* For valid time selection */
+vaadin-time-picker[theme~="valid-time"] {
+  --vaadin-input-field-background: #05B888; /* muted dark green */
+  --vaadin-input-field-border-color: #4caf50; /* Lumo-compatible green */
+  --vaadin-input-field-value-color: white; /* light green text */
+}
+
+/* For invalid time selection */
+vaadin-time-picker[theme~="invalid-time"] {
+  --vaadin-input-field-background: #ff5252; /* muted dark red */
+  --vaadin-input-field-border-color: #f44336; /* Lumo-compatible red */
+  --vaadin-input-field-value-color: white; /* light red text */
+}
+
+
+

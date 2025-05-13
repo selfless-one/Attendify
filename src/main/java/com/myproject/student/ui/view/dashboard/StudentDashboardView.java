@@ -8,10 +8,13 @@ import com.myproject.backend.student.entity.StudentAccountEntity;
 import com.myproject.backend.student.service.StudentAccountService;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.service.SectionService;
+import com.myproject.backend.teacher.service.StudentAttendifiedService;
 import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectClose;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectOpen;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -20,14 +23,17 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@PageTitle("Student Dashboard")
 @Route("student/dashboard/username")
 public class StudentDashboardView extends VerticalLayout implements HasUrlParameter<String> {
 
@@ -43,6 +49,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	private SubjectService subjectService;
 	private SectionService sectionService;
 
+	
+	private final StudentAttendifiedService studentAttendifiedService;
 
 	private StudentAccountEntity studentAccount;
 	
@@ -62,6 +70,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		
 		this.studentSection = studentAccount.getSectionName();
 		
+		verifyIfSectionExists();
+		
 		buildUI();
 	}
 
@@ -69,8 +79,12 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	private Grid<SubjectEntity> subjectGrid;
 	private List<SubjectEntity> subjects;
 
-	public StudentDashboardView(StudentAccountService studentAccountService, SubjectService subjectService, SectionService sectionService) {
+	public StudentDashboardView(StudentAccountService studentAccountService, 
+			SubjectService subjectService, 
+			SectionService sectionService,
+			StudentAttendifiedService studentAttendifiedService) {
 
+		this.studentAttendifiedService = studentAttendifiedService;
 		this.studentAccountService = studentAccountService;
 		this.sectionService = sectionService;
 		this.subjectService = subjectService;
@@ -118,6 +132,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		subjectGrid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
 		//subjectGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 		subjectGrid.setAllRowsVisible(true);
+		subjectGrid.setSizeUndefined();
 		
 		Span field1 = new Span("Subject Code");
 		Span field2 = new Span("Description");
@@ -137,16 +152,21 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		
 
 		subjectGrid.addSelectionListener(selection -> {
+			
+			verifyIfSectionExists();
+			
 			Optional<SubjectEntity> selectedSub = selection.getFirstSelectedItem();
 
 			selectedSub.ifPresent(subject -> {
 
 				System.out.println("Selected subject: " + subject.getSubjectDescription());
 
-				try {
-					Thread.sleep(2000);
+			//	try {
+					//Thread.sleep(2000);
 
 					if (subject.getStatus().equals("Open"))  {
+						
+						verifyIfSectionExists();
 						
 						UI.getCurrent().getSession().setAttribute("idOfSelectedSubject", subject.getId());
 						
@@ -156,10 +176,10 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 						new DialogSubjectClose();
 					}
 
-				} catch (InterruptedException e1) {
-
-					e1.printStackTrace();
-				}
+//				} catch (InterruptedException e1) {
+//
+//					e1.printStackTrace();
+//				}
 
 
 			});
@@ -168,20 +188,20 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 
 		subjectGrid.setWidthFull();
 		subjectGrid.setHeight("100%");
-		subjectGrid.setEmptyStateText("Your subjects for section " + studentSection + " will appear here.");
+		subjectGrid.setEmptyStateText("You'll see your subjects for " + studentSection + " listed here.");
 		//subjectGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
 		subjectGrid.setPartNameGenerator(subject -> !subject.getSubjectCode().isEmpty() ? "high-rating" : "low-rating");
 
 		// Add custom grid styling
-//		subjectGrid.getElement().executeJs(
-//				"const style = document.createElement('style');" +
-//						"style.innerHTML = `" +
-//						"  vaadin-grid::part(high-rating) { background-color: var(--lumo-success-color-10pct); }" +
-//						"  vaadin-grid::part(low-rating) { background-color: var(--lumo-error-color-10pct); }" +
-//						"`;" +
-//						"document.head.appendChild(style);"
-//				);
+		subjectGrid.getElement().executeJs(
+				"const style = document.createElement('style');" +
+						"style.innerHTML = `" +
+						"  vaadin-grid::part(high-rating) { background-color: var(--lumo-success-color-10pct); }" +
+						"  vaadin-grid::part(low-rating) { background-color: var(--lumo-error-color-10pct); }" +
+						"`;" +
+						"document.head.appendChild(style);"
+				);
 
 		// Load subject data
 		loadSubjectData();
@@ -224,11 +244,32 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
     // ---------------------------------- grid status field util
     private final SerializableBiConsumer<Span, SubjectEntity> statusComponentUpdater = (
             span, subject) -> {
-        boolean isOpen = "Open".equals(subject.getStatus());
-        String theme = String.format("badge %s",
-                isOpen ? "success" : "error");
-        span.getElement().setAttribute("theme", theme);
+//        boolean isOpen = "Open".equals(subject.getStatus());
+//        String theme = String.format("badge %s",
+//                isOpen ? "success" : "error");
+//        span.getElement().setAttribute("theme", theme);
         span.setText(subject.getStatus());
+        
+    	
+		if ("Open".equals(subject.getStatus())) {
+			
+			span.getStyle().setBackgroundColor("#05b888");
+			span.getStyle().setPaddingRight("16px");
+			span.getStyle().setPadding("5px");
+		}
+		
+		if ("Closed".equals(subject.getStatus())) {
+			
+			span.getStyle().setBackgroundColor("#ee4654");
+			span.getStyle().setPadding("5px");
+
+		}
+		
+		span.getStyle().setColor("White");
+		span.getStyle().setBorderRadius("3px");
+		span.getStyle().setFontSize("14px");
+		
+		span.setText(subject.getStatus());
     };
     
     private ComponentRenderer<Span, SubjectEntity> createStatusComponentRenderer() {
@@ -257,7 +298,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
     }
     
     private void showOpenAttendifyDialog(SubjectEntity subj) {
-		DialogSubjectOpen dialog = new DialogSubjectOpen(this::updateSubjectStatus, subj, subjectService, studentAccountService);
+		DialogSubjectOpen dialog = new DialogSubjectOpen(this::updateSubjectStatus, subj, subjectService, studentAccountService, studentAttendifiedService);
 		dialog.open();
     }
 
@@ -285,7 +326,142 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
         
         add(header, body);
     }
+    
+    
+    
+    
+    private void verifyIfSectionExists() {
+    	
+    	// if not exists anymore
+    	if (!sectionService.sectionNameExists(studentSection)) {
+    		
+    		Dialog dialogForSectionNotExists = new Dialog();
+    		dialogForSectionNotExists.setCloseOnOutsideClick(false);
+    		dialogForSectionNotExists.setCloseOnEsc(false);
+    		
+    		Span headerLabel = new Span("Section " + studentSection + " no longer exists");
+    		headerLabel.getStyle().setColor("white");
+    		headerLabel.getStyle().setPaddingBottom("10px");
+    		headerLabel.getStyle().setPaddingLeft("8px");
+    		headerLabel.getStyle().setPaddingTop("15px");
+    		headerLabel.getStyle().setFontWeight("bold");
+    		
+    		Span label = new Span("It may have been modified or removed");
+    		Span label2 = new Span("by your Professor.");
+    		label.getStyle().setColor("#ee4654");
+    		label2.getStyle().setColor("#ee4654");
+    		
+    		VerticalLayout wrapper1 = new VerticalLayout(label, label2);
+    		wrapper1.setSpacing(false);
+    		wrapper1.setPadding(false);
+    		wrapper1.getStyle().setPaddingTop("18px");
+    		wrapper1.getStyle().setPaddingBottom("20px");
+    		
+    		Span label3 = new Span("Provide new section name");
+    		TextField newSectionNameField = new TextField();
+    		newSectionNameField.setRequired(true);
+    		
+    		VerticalLayout wrapper2 = new VerticalLayout(label3, newSectionNameField);
+    		wrapper2.setSpacing(false);
+    		wrapper2.setPadding(false);
+    		
+    		
+    		VerticalLayout content = new VerticalLayout(wrapper1, wrapper2);
+    		content.setPadding(true);
+    		content.setSpacing(false);
+    		
+    		Button saveBtn = new Button("Save");
+    		saveBtn.getStyle()
+    		.set("color", "white")
+    		.set("font-size", "14px")
+    		.set("background-color", "#4460EF")
+    		.set("border-radius", "10px")
+    		.set("padding", "10px 20px")
+    		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+    		.set("transition", "transform 0.2s ease-in-out");
+    		saveBtn.getElement().executeJs(
+    				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+    						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+    				);
+    		
+    		saveBtn.addClickListener(save -> {
+    			
+    			var newSectionValue = newSectionNameField.getValue().toUpperCase().trim();
+    			
+    			if (newSectionValue.isEmpty()) {
+    				newSectionNameField.setInvalid(true);
+    				newSectionNameField.setErrorMessage("required");
+    				return;
+    			} else if (newSectionValue.contains(" ")) {
+    				newSectionNameField.setInvalid(true);
+    				newSectionNameField.setErrorMessage("whitespace is not allowed");
+    				return;
+    			} else {
+    				
+    				Dialog loadingDialog = new Dialog();
+					ProgressBar progressBar = new ProgressBar();
+					loadingDialog.setModal(true); // Blocks interaction
+					loadingDialog.setCloseOnEsc(false);
+					loadingDialog.setCloseOnOutsideClick(false);
+					progressBar.setIndeterminate(true); // Animate
+					loadingDialog.add(progressBar);
+    				
+    				if (sectionService.sectionNameExists(newSectionValue)) {
+    					
+    					getUI().ifPresent(ui -> {
+    						ui.access(() -> loadingDialog.open());
+    						new Thread(() -> {
+        						try {
+    								Thread.sleep(3000);
+    							} catch (InterruptedException e) {
+    								e.printStackTrace();
+    							}
+        						ui.access(() -> {
+        							loadingDialog.close();
+        							
+        							studentAccountService.updateSectionName(newSectionValue, studentAccount);
+        							ui.getPage().reload();
+        							
+        						});
+        					}).start();
+    					});
+    					
+    				} else {
+    					
+    					getUI().ifPresent(ui -> {
+    						ui.access(() -> loadingDialog.open());
+    						new Thread(() -> {
+        						try {
+    								Thread.sleep(3000);
+    							} catch (InterruptedException e) {
+    								e.printStackTrace();
+    							}
+        						ui.access(() -> {
+        							loadingDialog.close();
+        							newSectionNameField.setInvalid(true);
+        	        				newSectionNameField.setErrorMessage("section " + newSectionValue + " not found");
+        						});
+        					}).start();
+    					});
+    				}
+    				
+    				
+    			}
+    			
+    			
+    		});
 
+    		
+    		dialogForSectionNotExists.getHeader().add(headerLabel);
+    		dialogForSectionNotExists.add(content);
+    		dialogForSectionNotExists.getFooter().add(saveBtn);
+    		
+    		dialogForSectionNotExists.open();
+    		
+    	}
+    	
+    	
+    }
 
 
 

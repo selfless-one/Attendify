@@ -39,6 +39,10 @@ public class IdentityDialog extends Dialog {
 				LumoUtility.Padding.Top.MEDIUM);
 		headerLabel.getStyle().setColor("white");
 
+		headerLabel.getStyle().setFontSize("18px");
+		headerLabel.getStyle().setPaddingBottom("3px");
+		headerLabel.getStyle().setPaddingLeft("8px");
+		
 		buttonTip = new Button(new Icon(VaadinIcon.INFO_CIRCLE));
 		buttonTip.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_ICON);
 		buttonTip.getStyle().setColor("white");
@@ -54,6 +58,7 @@ public class IdentityDialog extends Dialog {
 
 		headerLayout = new HorizontalLayout(headerLabel, buttonTip);
 		headerLayout.getStyle().set("cursor", "move");
+		headerLayout.getStyle().setPaddingTop("15px");
 		headerLayout.addClassName("draggable");
 	}
 
@@ -104,16 +109,41 @@ public class IdentityDialog extends Dialog {
 
 		submitBtn.addClickListener(evt -> {
 
+			var surnameVal = surname.getValue().trim();
+			var firstnameVal =  firstname.getValue().trim(); 
 
-			if (!surname.getValue().isBlank() && !firstname.getValue().isBlank()) {
+			if (!surnameVal.isBlank() && !firstnameVal.isBlank()) {
+				
+//					if (surnameVal.contains(" ")) {
+//						surname.setInvalid(true);
+//						surname.setErrorMessage("whitespace is not allowed");
+//						return;
+//					}
+//					
+//					if (firstnameVal.contains(" ")) {
+//						firstname.setInvalid(true);
+//						firstname.setErrorMessage("whitespace is not allowed");
+//						return;
+//					}
 
 					Span header = new Span("Confirm your details to continue");
 					header.addClassNames(LumoUtility.FontWeight.BOLD, 
 							LumoUtility.Margin.Bottom.SMALL, 
 							LumoUtility.TextColor.PRIMARY_CONTRAST);
 					
-					Span surnameData = new Span("Surname: " + surname.getValue());
-					Span firstnameData = new Span("Firstname: " + firstname.getValue());
+					header.getStyle().setColor("white");
+
+					header.getStyle().setPaddingBottom("5px");
+					header.getStyle().setPaddingLeft("8px");
+					header.getStyle().setPaddingTop("10px");
+					
+					String surnameC = surname.getValue().trim(), firstnameC = firstname.getValue().trim();
+		    		
+		    		var surnameFormat = surnameC.substring(0, 1).toUpperCase() + surnameC.substring(1);
+		    		var firstnameFormat = firstnameC.substring(0, 1).toUpperCase() + firstnameC.substring(1);
+					
+		    		Span surnameData = new Span("Surname: " + surnameFormat);
+					Span firstnameData = new Span("Firstname: " + firstnameFormat);
 					
 					VerticalLayout details = new VerticalLayout(surnameData, firstnameData);
 					details.setSpacing(false);
@@ -123,9 +153,23 @@ public class IdentityDialog extends Dialog {
 					Button confirmBtn = new Button("Confirm");
 					Button cancelBtn = new Button("Cancel");
 					
+					confirmBtn.getStyle()
+					.set("color", "white")
+					.set("font-size", "14px")
+					.set("background-color", "#4460EF")
+					.set("border-radius", "10px")
+					.set("padding", "10px 12px")
+					.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+					.set("transition", "transform 0.2s ease-in-out");
+					//	logoutBtn.getElement().getThemeList().add("error");
+					confirmBtn.getElement().executeJs(
+							"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+									"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+							);
+					
 					Dialog dialogConfirm = new Dialog();
 					
-					dialogConfirm.setTop("342px");
+					dialogConfirm.setTop("375px");
 					dialogConfirm.setWidth("280px");
 					dialogConfirm.setCloseOnOutsideClick(false);
 					dialogConfirm.getHeader().add(header);
@@ -138,9 +182,7 @@ public class IdentityDialog extends Dialog {
 					
 					confirmBtn.addClickListener(e -> {
 						
-						acc.setSurname(surname.getValue());
-						acc.setFirstname(firstname.getValue());
-						accService.saveChanges(acc);
+						accService.saveSurnameAndFirstname(surname.getValue(), firstname.getValue(), acc);
 						
 						dialogConfirm.close();
 						this.close();

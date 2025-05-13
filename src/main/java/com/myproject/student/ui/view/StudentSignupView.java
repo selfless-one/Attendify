@@ -18,9 +18,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+@PageTitle("Student Sign Up")
 @Route("student/signup")
 public class StudentSignupView extends VerticalLayout {
 
@@ -101,18 +103,36 @@ public class StudentSignupView extends VerticalLayout {
 				LumoUtility.Margin.NONE,
 				LumoUtility.TextColor.PRIMARY
 				);
+		
+		signUpLink.getStyle().setFontSize("14px");
+		signUpLink.getStyle().setPaddingBottom("10px");
+		signUpLink.getStyle().setPaddingTop("10px");
+		
 		signUpLink.getStyle().set("text-decoration", "none"); // Optional: remove underline if you want
-
+		
 		// Student toggle button
 		Button toggleBtn = new Button("I am Student");
+		
+		toggleBtn.getStyle().setBackground("#267BFB");
+		toggleBtn.getStyle().setHeight("30px");		
+		
+		toggleBtn.getStyle()
+		.set("z-index", "1")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		toggleBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);	
+		
 		toggleBtn.addClassNames(
 				LumoUtility.Margin.Top.MEDIUM,
 				LumoUtility.Margin.Top.SMALL,
 				LumoUtility.FontWeight.SEMIBOLD,
 				LumoUtility.BorderRadius.MEDIUM,
 				LumoUtility.Padding.SMALL,
-				LumoUtility.TextColor.PRIMARY,
-				LumoUtility.Background.PRIMARY,
+				//LumoUtility.TextColor.PRIMARY,
+				//LumoUtility.Background.PRIMARY,
 				LumoUtility.Width.AUTO,
 				LumoUtility.Height.SMALL,
 				LumoUtility.FontSize.SMALL
@@ -187,6 +207,9 @@ public class StudentSignupView extends VerticalLayout {
 					ui.access(() -> {
 						
 						switch (result) {
+						case "Contain whitespaces" -> showErrorMessage("Spaces are not allowed—please remove them.");
+						case "Username must be at least 5 characters" -> showErrorMessage("Username must be at least 5 characters");
+						case "Password must be at least 5 characters" -> showErrorMessage("Password must be at least 5 characters");
 						case "Section Not Exists" -> showErrorMessage("Section Not Exists");
 						case "Student Number already exists" -> showErrorMessage("Student Number already exists");
 						case "Username already exists" -> showErrorMessage("Username already exists");
