@@ -3,20 +3,18 @@ FROM openjdk:17-jdk-slim
 # Install Maven
 RUN apt-get update && apt-get install -y maven
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy pom.xml to the container
+# Copy pom.xml and download dependencies
 COPY pom.xml .
-
-# Download the dependencies offline
 RUN mvn dependency:go-offline
 
-# Copy the rest of the application code
+# Copy the full source only after dependencies are cached
 COPY . .
 
 # Build the application
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
-# Set the entry point for your application
+# Set the entry point
 CMD ["java", "-jar", "target/your-app.jar"]
