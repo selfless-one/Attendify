@@ -240,7 +240,8 @@ public class OpenTheAttendanceDialog extends Dialog {
 		
 		scheduler.scheduleAtFixedRate(() -> {
 
-			LocalTime now = LocalTime.now();
+			ZoneId philippinesZoneId = ZoneId.of("Asia/Manila");
+			LocalTime now = LocalTime.now(philippinesZoneId);
 			Duration remaining = Duration.between(now, attendanceEndTime);
 
 			if (!remaining.isNegative() && ui != null && ui.getSession() != null) {
