@@ -1,4 +1,4 @@
-# Use an official OpenJDK runtime as a parent image
+# Use an official OpenJDK runtime as a parent image for build stage
 FROM openjdk:17-jdk-slim as build
 
 # Set the working directory in the container
@@ -16,8 +16,8 @@ COPY src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Use a smaller OpenJDK image for the runtime
-FROM openjdk:17-jre-slim
+# Use the same OpenJDK image for the runtime stage
+FROM openjdk:17-jdk-slim
 
 # Set the working directory in the container
 WORKDIR /app
