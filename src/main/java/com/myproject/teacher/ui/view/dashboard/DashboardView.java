@@ -20,6 +20,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.myproject.backend.teacher.entity.SectionEntity;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@PageTitle("Professor Dashboard")
 @Route("professor/dashboard")
 public class DashboardView extends VerticalLayout implements HasUrlParameter<String>  {
 
@@ -398,8 +400,8 @@ public class DashboardView extends VerticalLayout implements HasUrlParameter<Str
 
 				System.out.printf("Selected section: %s%n", sectionName);
 
-				try {
-					Thread.sleep(2000);
+//				try {
+//					Thread.sleep(2000);
 
 					UI.getCurrent().getSession().setAttribute("idOfSelectedSection", selectedSection.getId());
 					
@@ -409,10 +411,10 @@ public class DashboardView extends VerticalLayout implements HasUrlParameter<Str
 					UI.getCurrent().navigate(path);
 					
 					
-				} catch (InterruptedException e1) {
-
-					e1.printStackTrace();
-				}
+//				} catch (InterruptedException e1) {
+//
+//					e1.printStackTrace();
+//				}
 			}
 		});
 		
