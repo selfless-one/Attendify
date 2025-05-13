@@ -2,6 +2,7 @@ package com.myproject.teacher.ui.view.dashboard.subjectDataPage;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -345,7 +346,8 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 		timePicker.addValueChangeListener(event -> {
 
-			LocalTime currentTime = LocalTime.now();
+			ZoneId philippinesZoneId = ZoneId.of("Asia/Manila");
+			LocalTime currentTime = LocalTime.now(philippinesZoneId);
 			LocalTime selectedTime = event.getValue();
 
 			if (selectedTime != null && selectedTime.isAfter(currentTime)) {

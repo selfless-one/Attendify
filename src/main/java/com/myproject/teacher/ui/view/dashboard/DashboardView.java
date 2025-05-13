@@ -29,6 +29,7 @@ import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -464,7 +465,9 @@ public class DashboardView extends VerticalLayout implements HasUrlParameter<Str
 	}
 
 	private void addSection(String sectionName, String courseName) {
-		LocalDateTime now = LocalDateTime.now();
+		
+		ZoneId philippinesZoneId = ZoneId.of("Asia/Manila");
+		LocalDateTime now = LocalDateTime.now(philippinesZoneId);
 		
 	//	sectionName = sectionName.toUpperCase();
 	//	courseName = courseName.toUpperCase();

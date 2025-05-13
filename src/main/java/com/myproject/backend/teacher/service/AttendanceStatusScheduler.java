@@ -1,6 +1,7 @@
 package com.myproject.backend.teacher.service;
 
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,7 +30,8 @@ public class AttendanceStatusScheduler {
 		
 		for (SubjectEntity sub : openSubjects) {
 			
-			if (LocalTime.now().isAfter(sub.getAttendanceEndTime())) {
+			ZoneId philippinesZoneId = ZoneId.of("Asia/Manila");
+			if (LocalTime.now(philippinesZoneId).isAfter(sub.getAttendanceEndTime())) {
 				
 				sub.setStatus("Closed");
 				sub.setHasBeenDownloadedStudentAttendified(false);

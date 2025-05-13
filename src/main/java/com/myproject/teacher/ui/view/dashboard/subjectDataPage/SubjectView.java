@@ -30,6 +30,7 @@ import com.myproject.backend.teacher.service.SubjectService;
 import com.myproject.backend.teacher.service.TeacherAccountService;
 import com.myproject.teacher.ui.view.TeacherLoginView;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
@@ -380,7 +381,8 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver, 
 
 	private void addSubject(String subjectCode, String subjectDesc) {
 		
-		LocalDateTime now = LocalDateTime.now();
+		ZoneId philippinesZoneId = ZoneId.of("Asia/Manila");
+		LocalDateTime now = LocalDateTime.now(philippinesZoneId);
 		
 //		subjectCode = subjectCode.toUpperCase().trim();
 //		subjectDesc = subjectDesc.trim();

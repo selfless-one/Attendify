@@ -1,4 +1,4 @@
-import com.myproject.student.ui.view.StudentLoginView;
+package com.myproject.student.ui.view;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
