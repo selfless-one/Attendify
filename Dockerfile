@@ -1,20 +1,28 @@
-FROM openjdk:17-jdk-slim
+# ---------- Stage 1: Build ----------
+FROM maven:3.9.6-eclipse-temurin-17 as builder
 
-# Install Maven
-RUN apt-get update && apt-get install -y maven
-
-# Set working directory
+# Set work directory
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
+# Copy pom and download dependencies first (better cache usage)
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copy the full source only after dependencies are cached
+# Copy all source files
 COPY . .
 
-# Build the application
+# Build app and skip tests to speed up
 RUN mvn clean package -DskipTests
 
-# Set the entry point
-CMD ["java", "-jar", "target/your-app.jar"]
+
+# ---------- Stage 2: Run ----------
+FROM openjdk:17-jdk-slim
+
+# Set work directory
+WORKDIR /app
+
+# Copy built jar from builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]

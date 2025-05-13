@@ -1,40 +1,23 @@
-# Java build folders
+# Ignore build output
 target/
-*.log
-*.class
-
-# Git
-.git
+# Ignore Git and IDE files
+.git/
 .gitignore
-
-# IDE/editor files
-*.iml
-*.classpath
 .project
-.idea/
-
-# Docker-related
-Dockerfile
-.dockerignore
-
-# Node/JS frontend files if unused in build
+.classpath
+.settings/
+# Ignore system or crash files
+hs_err_pid*
+*.log
+# Ignore frontend or node-related files (if not needed in backend)
 node_modules/
 package.json
 package-lock.json
 tsconfig.json
 vite.generated.ts
 type.d.ts
-
-# OS-specific
-.DS_Store
-Thumbs.db
-
-# Misc
-*.pid
-*.swp
-ec;ispe-formatter.xml
-.pretteierrc.json
-LICENSE.md
+.prettier*
+# Other docs
 README.md
-mvnw
-mvnw.cmd
+LICENSE*
+Dockerfile
