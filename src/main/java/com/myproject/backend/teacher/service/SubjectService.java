@@ -59,6 +59,17 @@ public class SubjectService {
 			save(subject);
 		}, () -> new Exception("Subject not found. ID: " + subjectEntityID));
 		
+	}
+	
+	public void requestResetAndClose(SubjectEntity subjectEntity) {
 		
+		getById(subjectEntity.getId()).ifPresentOrElse(subject -> {
+			
+			subject.setStatus("Closed");
+			subject.getStudentAttentifiedEntity().clear();
+			
+			save(subject);
+			
+		}, () -> new Exception("Subject not found, ID: " + subjectEntity.getId()));
 	}
 }
