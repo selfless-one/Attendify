@@ -11,8 +11,7 @@ RUN mvn dependency:go-offline
 # Copy all source files
 COPY . .
 
-# Pre-build frontend
-RUN mvn vaadin:prepare-frontend
+RUN mvn vaadin:build-frontend
 
 # Build app and skip tests to speed up
 RUN mvn clean package -DskipTests
