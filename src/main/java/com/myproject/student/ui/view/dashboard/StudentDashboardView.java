@@ -30,8 +30,10 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@PageTitle("Student Dashboard")
 @Route("student/dashboard/username")
 public class StudentDashboardView extends VerticalLayout implements HasUrlParameter<String> {
 
@@ -159,8 +161,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 
 				System.out.println("Selected subject: " + subject.getSubjectDescription());
 
-				try {
-					Thread.sleep(2000);
+			//	try {
+					//Thread.sleep(2000);
 
 					if (subject.getStatus().equals("Open"))  {
 						
@@ -174,10 +176,10 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 						new DialogSubjectClose();
 					}
 
-				} catch (InterruptedException e1) {
-
-					e1.printStackTrace();
-				}
+//				} catch (InterruptedException e1) {
+//
+//					e1.printStackTrace();
+//				}
 
 
 			});
