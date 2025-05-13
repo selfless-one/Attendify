@@ -16,3 +16,5 @@ vite.generated.ts
 src/main/bundles/dev.bundle
 hs_err_pid17240.log
 hs_err_pid16280.log
+
+hs_err_pid17240.log
