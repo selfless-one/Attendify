@@ -1,0 +1,40 @@
+# Java build folders
+target/
+*.log
+*.class
+
+# Git
+.git
+.gitignore
+
+# IDE/editor files
+*.iml
+*.classpath
+.project
+.idea/
+
+# Docker-related
+Dockerfile
+.dockerignore
+
+# Node/JS frontend files if unused in build
+node_modules/
+package.json
+package-lock.json
+tsconfig.json
+vite.generated.ts
+type.d.ts
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Misc
+*.pid
+*.swp
+ec;ispe-formatter.xml
+.pretteierrc.json
+LICENSE.md
+README.md
+mvnw
+mvnw.cmd
