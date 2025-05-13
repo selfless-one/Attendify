@@ -5,15 +5,15 @@ import com.myproject.student.ui.view.dashboard.StudentDashboardView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+@PageTitle("Student Login")
 @Route("student/login")
 public class StudentLoginView extends VerticalLayout {
 
@@ -107,14 +107,14 @@ public class StudentLoginView extends VerticalLayout {
 
 	public void loginEvent() {
 
-		Dialog loadingDialog = new Dialog();
-		ProgressBar progressBar = new ProgressBar();
-
-		loadingDialog.setModal(true); // Blocks interaction
-		loadingDialog.setCloseOnEsc(false);
-		loadingDialog.setCloseOnOutsideClick(false);
-		progressBar.setIndeterminate(true); // Animate
-		loadingDialog.add(progressBar);
+//		Dialog loadingDialog = new Dialog();
+//		ProgressBar progressBar = new ProgressBar();
+//
+//		loadingDialog.setModal(true); // Blocks interaction
+//		loadingDialog.setCloseOnEsc(false);
+//		loadingDialog.setCloseOnOutsideClick(false);
+//		progressBar.setIndeterminate(true); // Animate
+//		loadingDialog.add(progressBar);
 
 		loginForm.addLoginListener(login -> {
 			if (login.getUsername().isBlank() || login.getPassword().isBlank()) {
@@ -128,22 +128,22 @@ public class StudentLoginView extends VerticalLayout {
 				getUI().ifPresent(ui -> {
 					
 					ui.access(() -> {
-						loadingDialog.open();
+					//	loadingDialog.open();
 					});
 
 					// Then run the actual logic in a new thread
-					new Thread(() -> {
-						try {
-							Thread.sleep(3000); // simulate delay
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+					//new Thread(() -> {
+//						try {
+//							Thread.sleep(3000); // simulate delay
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
 
 						boolean authenticated = studentAccountService.authenticate(username, password);
 
 						ui.access(() -> {
 							
-							loadingDialog.close();
+							//loadingDialog.close();
 
 							if (authenticated) {
 								
@@ -156,7 +156,7 @@ public class StudentLoginView extends VerticalLayout {
 										"Check that you have entered the correct username and password and try again.");
 							}
 						});
-					}).start(); // important: start the thread!
+				//	}).start(); // important: start the thread!
 				});
 			}
 		});

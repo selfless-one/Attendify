@@ -6,15 +6,15 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+@PageTitle("Professor Login")
 @Route("professor/login")
 @CssImport("./styles/shared-styles.css")
 public class TeacherLoginView extends VerticalLayout {
@@ -40,14 +40,14 @@ public class TeacherLoginView extends VerticalLayout {
 
 	public void loginFormLoginEvent() {
 
-		Dialog loadingDialog = new Dialog();
-		ProgressBar progressBar = new ProgressBar();
-
-		loadingDialog.setModal(true); // Blocks interaction
-		loadingDialog.setCloseOnEsc(false);
-		loadingDialog.setCloseOnOutsideClick(false);
-		progressBar.setIndeterminate(true); // Animate
-		loadingDialog.add(progressBar);
+//		Dialog loadingDialog = new Dialog();
+//		ProgressBar progressBar = new ProgressBar();
+//
+//		loadingDialog.setModal(true); // Blocks interaction
+//		loadingDialog.setCloseOnEsc(false);
+//		loadingDialog.setCloseOnOutsideClick(false);
+//		progressBar.setIndeterminate(true); // Animate
+//		loadingDialog.add(progressBar);
 
 		loginForm.addLoginListener(login -> {
 
@@ -59,23 +59,23 @@ public class TeacherLoginView extends VerticalLayout {
 				String password = login.getPassword();
 
 				// Show dialog first in UI thread
-				getUI().ifPresent(ui -> {
+			//	getUI().ifPresent(ui -> {
 
-					ui.access(() -> loadingDialog.open());
+					//ui.access(() -> loadingDialog.open());
 
 					// Then run the actual logic in a new thread
-					new Thread(() -> {
-						try {
-							Thread.sleep(3000); // simulate delay
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+//					new Thread(() -> {
+//						try {
+//							Thread.sleep(3000); // simulate delay
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
 
 						boolean authenticated = teacherAccService.authenticate(username, password);
 
-						ui.access(() -> {
+						//ui.access(() -> {
 
-							loadingDialog.close();
+						//	loadingDialog.close();
 
 							if (authenticated) {
 
@@ -87,9 +87,9 @@ public class TeacherLoginView extends VerticalLayout {
 										"Incorrect username or password", 
 										"Check that you have entered the correct username and password and try again.");
 							}
-						});
-					}).start(); // important: start the thread!
-				});
+					//	});
+					//}).start(); // important: start the thread!
+			//	});
 			}
 
 		});
