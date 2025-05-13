@@ -23,14 +23,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.theme.lumo.Lumo;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @Route("student/attendified/live/subject")
-public class StudentAttendifiedView extends Div implements HasUrlParameter<String> {
+public class StudentAttendifiedView extends Div implements HasUrlParameter<String>, HasDynamicTitle {
 
 	/**
 	 * 
@@ -50,6 +49,11 @@ public class StudentAttendifiedView extends Div implements HasUrlParameter<Strin
 	private Button downloadBtn;
 	
 	@Override
+	public String getPageTitle() {
+		return subjectCode + " live attendified";
+	}
+	
+	@Override
 	public void setParameter(BeforeEvent event, String subjectCode) {
 		this.subjectCode = subjectCode;
 	}
@@ -60,7 +64,7 @@ public class StudentAttendifiedView extends Div implements HasUrlParameter<Strin
 		
 		idOfSubjectEntity = (Integer) UI.getCurrent().getSession().getAttribute("idOfSubjectEntity");
 		
-		if (idOfSubjectEntity == 0) {
+		if (idOfSubjectEntity == null) {
 			UI.getCurrent().close();
 			UI.getCurrent().navigate(TeacherLoginView.class);
 		}
@@ -87,30 +91,30 @@ public class StudentAttendifiedView extends Div implements HasUrlParameter<Strin
 		VerticalLayout layout = new VerticalLayout(header, studentsAttendifiedGrid);
 
 		add(layout);
-		
+
 		final ConfirmDialog closePageDialog = new ConfirmDialog("Attendance has been closed", 
 				"You may close this tab", "ok", event -> event.getSource().close());
-		
+
 		boolean[] openClosePageDialogOnce = {false};
 
-		UI.getCurrent().setPollInterval(1000);
+		UI.getCurrent().setPollInterval(10000);
 		UI.getCurrent().addPollListener(pool -> {
-			
+
 			syncStudentsAttendified();
 
 			if (subjectEntity.getStatus().equals("Closed") && !openClosePageDialogOnce[0]) {
 				openClosePageDialogOnce[0] = true;
 				closePageDialog.open();
 				add(closePageDialog);
-				
+
 				UI.getCurrent().setPollInterval(-1);
 			}
 		});
-		
+
 	}
 
 	private void syncStudentsAttendified() {
-		
+
 		studentsAttendified.clear();
 		
 		subjectEntity = subjectService.getById(idOfSubjectEntity).get();
