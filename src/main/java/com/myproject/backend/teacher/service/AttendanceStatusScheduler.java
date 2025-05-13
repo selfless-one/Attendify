@@ -20,10 +20,12 @@ public class AttendanceStatusScheduler {
 		this.subjectService = subjectService;
 	}
 	
-	@Scheduled(fixedRate = 1000)
+	@Scheduled(fixedRate = 30000)
 	public void checkAndCloseSubjects() {
 		
 		List<SubjectEntity> openSubjects = subjectRepository.findByStatus("Open");
+		
+		if (openSubjects.isEmpty()) return;
 		
 		for (SubjectEntity sub : openSubjects) {
 			

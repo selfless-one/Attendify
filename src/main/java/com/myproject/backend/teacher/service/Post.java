@@ -1,16 +1,9 @@
 package com.myproject.backend.teacher.service;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.myproject.backend.student.entity.StudentAccountEntity;
 import com.myproject.backend.student.repository.StudentAccountRepository;
-import com.myproject.backend.teacher.entity.SectionEntity;
-import com.myproject.backend.teacher.entity.SubjectEntity;
-import com.myproject.backend.teacher.entity.TeacherAccountEntity;
 import com.myproject.backend.teacher.repository.SectionRepository;
 import com.myproject.backend.teacher.repository.SubjectRepository;
 import com.myproject.backend.teacher.repository.TeacherAccountRepository;
