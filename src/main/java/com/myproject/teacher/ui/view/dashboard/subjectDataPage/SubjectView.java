@@ -20,6 +20,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.myproject.backend.teacher.entity.SectionEntity;
 import com.myproject.backend.teacher.entity.SubjectEntity;
@@ -36,7 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Route("professor/username/:username/subjectlist/section/:section")
-public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
+public class SubjectView extends VerticalLayout implements BeforeEnterObserver, HasDynamicTitle {
 
 	private static final long serialVersionUID = 1L;
 
@@ -74,6 +75,11 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		setSizeFull();
 		setAlignItems(Alignment.CENTER);
 		//setJustifyContentMode(JustifyContentMode.s);
+	}
+	
+	@Override
+	public String getPageTitle() {
+		return sectionNamePath + " subjects";
 	}
 
 	@Override
@@ -202,15 +208,15 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 
 				System.out.println("Selected subject: " + subject.getSubjectDescription());
 
-				try {
-					Thread.sleep(2000);
+//				try {
+				//	Thread.sleep(2000);
 
 					showOpenAttendifyDialog(subject.getId());
 
-				} catch (InterruptedException e1) {
-
-					e1.printStackTrace();
-				}
+//				} catch (InterruptedException e1) {
+//
+//					e1.printStackTrace();
+//				}
 
 
 			});
@@ -409,4 +415,5 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver {
 		syncSubjectsData();
 		
 	}
+
 }

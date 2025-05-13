@@ -8,7 +8,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.service.SubjectService;
-import com.myproject.teacher.ui.view.TeacherLoginView;
 import com.myproject.teacher.ui.view.dashboard.subjectDataPage.attendifiedStudent.DownloadStudentAttendified;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
@@ -27,7 +26,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.timepicker.TimePicker.TimePickerI18n;
 import com.vaadin.flow.dom.Style.AlignItems;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.StreamResource;
 
 @CssImport("./styles/shared-styles.css")
@@ -495,6 +493,7 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 			UI.getCurrent().getSession().setAttribute("subjectEntity", subjectEntity);
 
+			UI.getCurrent().getSession().setAttribute("idOfSubjectEntity", subjectEntity.getId());
 			
 			String pathToLiveAttendance = String.format("window.open('student/attendified/live/subject/%s', '_blank')", subjectEntity.getSubjectCode());
 			
@@ -537,10 +536,11 @@ public class OpenTheAttendanceDialog extends Dialog {
 		dialog.setConfirmButtonTheme("error primary");
 		dialog.addConfirmListener(event -> {
 
-			subjectEntity.setStatus("Closed");
+			subjectService.requestResetAndClose(subjectEntity);
 			
-			subjectEntity.getStudentAttentifiedEntity().clear();
-			subjectService.save(subjectEntity);
+			//subjectEntity.setStatus("Closed");
+			//subjectEntity.getStudentAttentifiedEntity().clear();
+			//subjectService.save(subjectEntity);
 			
 			subjectEntity = subjectService.getById(IdOfSelectedSubject).get();
 
@@ -548,7 +548,6 @@ public class OpenTheAttendanceDialog extends Dialog {
 			invokeDialog();
 			dialog.close();
 			
-
 		});
 
 		dialog.open();
