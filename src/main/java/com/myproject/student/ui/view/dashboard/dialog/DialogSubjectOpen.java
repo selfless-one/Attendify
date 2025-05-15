@@ -18,6 +18,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.Autocapitalize;
 import com.vaadin.flow.component.textfield.TextField;
 
 public class DialogSubjectOpen extends Dialog {
@@ -166,17 +167,22 @@ public class DialogSubjectOpen extends Dialog {
 		courseF.setRequired(true);
 		emailF.setRequired(true);
 		
+		studentNumberF.setAutocapitalize(Autocapitalize.CHARACTERS);
+		surnameF.setAutocapitalize(Autocapitalize.CHARACTERS);
+		firstnameF.setAutocapitalize(Autocapitalize.CHARACTERS);
+		courseF.setAutocapitalize(Autocapitalize.CHARACTERS);
+		
 		courseF.setHelperText("e.g. BSIT");
 		
-		var surname = studentAccount.getSurname();
-		var firstname = studentAccount.getFirstname();
+	//	var surname = studentAccount.getSurname();
+		//var firstname = studentAccount.getFirstname();
 		
-		var capitalizeSurname = surname.substring(0, 1).toUpperCase() + surname.substring(1);
-		var capitalizefirstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1);
+//		var capitalizeSurname = surname.substring(0, 1).toUpperCase() + surname.substring(1);
+//		var capitalizefirstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1);
 		
 		studentNumberF.setValue(studentAccount.getStudentNumber());
-		surnameF.setValue(capitalizeSurname);
-		firstnameF.setValue(capitalizefirstname);
+		surnameF.setValue(studentAccount.getSurname());
+		firstnameF.setValue(studentAccount.getFirstname());
 		//courseF.setValue(studentAccount.getCourse());
 		//emailF.setValue(studentAccount.getEmail());
 		
