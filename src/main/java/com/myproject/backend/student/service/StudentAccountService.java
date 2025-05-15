@@ -71,7 +71,7 @@ public class StudentAccountService {
 		studentNum = toUpperCase(studentNum);
 		sectionName = toUpperCase(sectionName);
 		
-		if (containWhitespace(username, password, surname, firstname, studentNum, sectionName)) return "Contain whitespaces";
+		if (containWhitespace(username, password, studentNum, sectionName)) return "Contain whitespaces";
 		
 		if (username.length() < 5) return "Username must be at least 5 characters";
 			
