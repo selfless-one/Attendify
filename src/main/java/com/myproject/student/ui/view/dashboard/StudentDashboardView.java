@@ -93,6 +93,8 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 	private void bodyConfig() {
 		body = new Div();
 
+		body.setWidthFull();
+		
 		body.getStyle()
 		.set("border", "2px solid black")
 		.set("border-radius", "8px")
