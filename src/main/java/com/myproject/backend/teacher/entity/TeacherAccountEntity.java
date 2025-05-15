@@ -38,7 +38,6 @@ public class TeacherAccountEntity {
 	
 	//private String email;
 	private String password;
-	private String token;
 	
 	@OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	List<SectionEntity> sections;

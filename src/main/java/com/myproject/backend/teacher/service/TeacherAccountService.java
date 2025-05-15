@@ -15,7 +15,7 @@ public class TeacherAccountService {
 
     private final TeacherAccountRepository teacherAccountRepo;
     
-    private final String myToken = "123";
+    private final String myToken = "25qq84";
     
     private final String trimData(String data) {
     	return data.trim();
