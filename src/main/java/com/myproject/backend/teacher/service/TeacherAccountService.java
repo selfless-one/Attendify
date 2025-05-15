@@ -69,17 +69,37 @@ public class TeacherAccountService {
         teacherAccountRepo.save(acc);
     }
 
-    public void saveSurnameAndFirstname(String surname, String firstname, TeacherAccountEntity acc) {
+    
+    public String capitalizeEachWord(String dataParam) {
+    	
+    	String data = trimData(dataParam);
+    	
+    	if (data.contains(" ")) {
+    		
+			String[] dataSplit = data.split("\\s+");
+    		
+			StringBuilder dataFormat = new StringBuilder();
+			
+			Arrays.stream(dataSplit).forEach(s -> {
+				dataFormat.append(s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase() + " ");
+			});
+
+			return dataFormat.toString().trim();
+
+    	} else {
+    		return data.substring(0, 1).toUpperCase() + data.substring(1).toLowerCase();	
+    	}
+    }
+    
+    public void saveSurnameAndFirstname(String surnameParam, String firstnameParam, TeacherAccountEntity acc) {
     	
     	teacherAccountRepo.findById(acc.getId()).ifPresentOrElse(account -> {
     		
-    		String surnameC = trimData(surname), firstnameC = trimData(firstname);
+    		String surname = capitalizeEachWord(surnameParam);
+    		String firstname = capitalizeEachWord(firstnameParam);
     		
-    		var surnameFormat = surnameC.substring(0, 1).toUpperCase() + surnameC.substring(1).toLowerCase();
-    		var firstnameFormat = firstnameC.substring(0, 1).toUpperCase() + firstnameC.substring(1).toLowerCase();
-    		
-    		account.setSurname(surnameFormat);
-    		account.setFirstname(firstnameFormat);
+    		account.setSurname(surname);
+    		account.setFirstname(firstname);
     		
     		saveChanges(account);
     		

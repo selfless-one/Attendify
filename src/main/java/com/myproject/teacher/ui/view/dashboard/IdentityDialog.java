@@ -136,11 +136,9 @@ public class IdentityDialog extends Dialog {
 					header.getStyle().setPaddingBottom("5px");
 					header.getStyle().setPaddingLeft("8px");
 					header.getStyle().setPaddingTop("10px");
-					
-					String surnameC = surname.getValue().trim(), firstnameC = firstname.getValue().trim();
 		    		
-		    		var surnameFormat = surnameC.substring(0, 1).toUpperCase() + surnameC.substring(1);
-		    		var firstnameFormat = firstnameC.substring(0, 1).toUpperCase() + firstnameC.substring(1);
+		    		var surnameFormat = accService.capitalizeEachWord(surname.getValue());
+		    		var firstnameFormat =  accService.capitalizeEachWord(firstname.getValue());
 					
 		    		Span surnameData = new Span("Surname: " + surnameFormat);
 					Span firstnameData = new Span("Firstname: " + firstnameFormat);
