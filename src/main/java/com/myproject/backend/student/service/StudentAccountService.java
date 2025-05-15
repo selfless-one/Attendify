@@ -12,7 +12,7 @@ import com.myproject.backend.teacher.service.SectionService;
 
 @Service
 public class StudentAccountService {
-	
+
 	private final StudentAccountRepository sAccountRepository;
 	private final SectionService sectionService;
 
@@ -20,16 +20,37 @@ public class StudentAccountService {
 		this.sAccountRepository = sAccountRepository;
 		this.sectionService = sectionService;
 	}
-	
+
 	private String trimData(String data) {
 		return data.trim();
 	}
-	
-//	private String capitalize(String data) {
-//		
-//		var d = trimData(data).toLowerCase();
-//		return d.substring(0, 1) + d.substring(1);
-//	}
+
+	public String capitalizeEachWord(String dataParam) {
+
+		String data = trimData(dataParam);
+
+		if (data.contains(" ")) {
+
+			String[] dataSplit = data.split("\\s+");
+
+			StringBuilder dataFormat = new StringBuilder();
+
+			Arrays.stream(dataSplit).forEach(s -> {
+				dataFormat.append(s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase() + " ");
+			});
+
+			return dataFormat.toString().trim();
+
+		} else {
+			return data.substring(0, 1).toUpperCase() + data.substring(1).toLowerCase();	
+		}
+	}
+
+	//	private String capitalize(String data) {
+	//		
+	//		var d = trimData(data).toLowerCase();
+	//		return d.substring(0, 1) + d.substring(1);
+	//	}
 	
 	private String toUpperCase(String data) {
 		return trimData(data).toUpperCase();
@@ -57,6 +78,8 @@ public class StudentAccountService {
 		return sAccountRepository.findByUsername(username).orElseThrow();	
 	}
 	
+	
+	
 	public String createAccount(String username, 
 			String password, 
 			String surname, 
@@ -65,8 +88,9 @@ public class StudentAccountService {
 			String sectionName) {
 		
 		username = trimData(username);
-		surname = trimData(surname);
-		firstname = trimData(firstname);
+		
+		surname = capitalizeEachWord(surname);
+		firstname = capitalizeEachWord(firstname);
 		
 		studentNum = toUpperCase(studentNum);
 		sectionName = toUpperCase(sectionName);
