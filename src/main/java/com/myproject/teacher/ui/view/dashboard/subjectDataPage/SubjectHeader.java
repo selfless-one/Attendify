@@ -1,7 +1,6 @@
 package com.myproject.teacher.ui.view.dashboard.subjectDataPage;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -40,8 +39,9 @@ public class SubjectHeader extends HorizontalLayout {
         
         Span teacherLabel = new Span("Professor: " + professorFullname);
         teacherLabel.getStyle()
-                .set("font-weight", "bold")
-                .set("font-size", "18px");
+                //.set("font-weight", "bold")
+                .set("font-size", "18px")
+                .setColor("#08cad1");
 
         Button logoutBtn = new Button("Logout", e -> {
 
@@ -65,6 +65,7 @@ public class SubjectHeader extends HorizontalLayout {
        // logoutBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         logoutBtn.getStyle()
         .set("background-color", "#822020")
+        .setFontSize("14px")
 		//.set("position", "absolute")
 		.set("bottom", "1px")
 		//.set("right", "20px")

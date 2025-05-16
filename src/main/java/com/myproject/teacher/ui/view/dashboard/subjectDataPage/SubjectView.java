@@ -119,14 +119,14 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver, 
 		Span sectionLabelValue = new Span(sectionNamePath);
 
 		sectionLabel.getStyle().set("font-size", "25px").set("margin-left", "6px");
-		sectionLabelValue.getStyle().set("font-weight", "bold").set("font-size", "25px");
+		sectionLabelValue.getStyle().set("font-weight", "bold").set("font-size", "25px").setColor("#7289da");
 
 		HorizontalLayout sectionLayout = new HorizontalLayout(sectionLabel, sectionLabelValue);
 		sectionLayout.setAlignItems(Alignment.CENTER);
 
 		TextField searchField = new TextField();
 
-		searchField.setWidth("50%");
+		searchField.setWidth("33%");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -347,16 +347,16 @@ public class SubjectView extends VerticalLayout implements BeforeEnterObserver, 
 		dialog.open();
 	}
 
-	private void updateSubjectStatus() {
-
-		subjects.clear();
-
-		subjectService.getAllSubjectBySectionID(idOfSelectedSection).forEach(subs -> {
-			subjects.add(new Subject(subs.getId(), subs.getSubjectCode(), subs.getSubjectDescription(), null, subs.getStatus()));
-		});
-
-		subjectsToDisplayInGrid.setItems(subjects);
-	}
+//	private void updateSubjectStatus() {
+//
+//		subjects.clear();
+//
+//		subjectService.getAllSubjectBySectionID(idOfSelectedSection).forEach(subs -> {
+//			subjects.add(new Subject(subs.getId(), subs.getSubjectCode(), subs.getSubjectDescription(), null, subs.getStatus()));
+//		});
+//
+//		subjectsToDisplayInGrid.setItems(subjects);
+//	}
 
 
 	private void showAddSubjectDialog() {

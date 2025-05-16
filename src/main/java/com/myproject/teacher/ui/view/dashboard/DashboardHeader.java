@@ -38,8 +38,9 @@ public class DashboardHeader extends HorizontalLayout {
         
         Span teacherLabel = new Span("Professor: " + professorFullname);
         teacherLabel.getStyle()
-                .set("font-weight", "bold")
-                .set("font-size", "18px");
+                //.set("font-weight", "bold")
+                .set("font-size", "18px")
+                .setColor("#08cad1");
 
         Button logoutBtn = new Button("Logout", e -> {
         	
@@ -64,6 +65,7 @@ public class DashboardHeader extends HorizontalLayout {
         logoutBtn.getStyle()
 		//.set("position", "absolute")
         .set("background-color", "#822020")
+        .setFontSize("14px")
 		.set("bottom", "1px")
 		//.set("right", "20px")
 		.set("z-index", "1")
