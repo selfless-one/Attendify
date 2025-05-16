@@ -1,6 +1,5 @@
-package com.myproject.student.ui.view.dashboard;
+package com.myproject.student.ui.view.dashboard;import java.util.LinkedList;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,17 +9,25 @@ import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.service.SectionService;
 import com.myproject.backend.teacher.service.StudentAttendifiedService;
 import com.myproject.backend.teacher.service.SubjectService;
+import com.myproject.student.ui.view.StudentLoginView;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectClose;
 import com.myproject.student.ui.view.dashboard.dialog.DialogSubjectOpen;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
@@ -89,6 +96,68 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		this.sectionService = sectionService;
 		this.subjectService = subjectService;
 	}
+	
+	
+	private Notification createSubjectCodeInfo(String subjectDesc, String professorName) {
+		
+        Notification notification = new Notification();
+        notification.setPosition(Position.MIDDLE);
+
+        Icon icon1 = VaadinIcon.USER.create();
+        icon1.setColor("var(--lumo-success-color)");
+        Div profLabel = new Div(new Text("Professor"));
+        profLabel.getStyle().set("font-weight", "600")
+                .setColor("var(--lumo-success-text-color)");
+        Span profName = new Span(professorName);
+        profName.getStyle().set("font-size", "var(--lumo-font-size-s)")
+                .set("font-weight", "600");
+        Div profInfo = new Div(profLabel, new Div(professorName));
+        profInfo.getStyle().set("font-size", "var(--lumo-font-size-s)")
+                .setColor("var(--lumo-secondary-text-color)");
+        
+        
+        Icon icon2 = VaadinIcon.SWORD.create();
+        icon2.setColor("var(--lumo-success-color)");
+        Div sectionLabel = new Div(new Text("Subject"));
+        sectionLabel.getStyle().set("font-weight", "600")
+                .setColor("var(--lumo-success-text-color)");
+        Span sectionName = new Span(subjectDesc);
+        sectionName.getStyle().set("font-size", "var(--lumo-font-size-s)")
+                .set("font-weight", "600");
+        Div sectionInfo = new Div(sectionLabel, new Div(sectionName));
+        sectionInfo.getStyle().set("font-size", "var(--lumo-font-size-s)")
+                .setColor("var(--lumo-secondary-text-color)");
+        
+
+        var closeBtn = new Button(new Icon("lumo", "cross"));
+        closeBtn.getStyle().setBackgroundColor("transparent");
+        
+        closeBtn.addClickListener(e -> {	
+        	this.setEnabled(true);
+        	notification.setEnabled(true);
+        	notification.close();
+        });
+        
+        var p = new HorizontalLayout(icon1, profInfo);
+        p.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        var proflayout = new HorizontalLayout(p, closeBtn);
+       // proflayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        proflayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        proflayout.setWidthFull();
+        
+        var s = new HorizontalLayout(icon2, sectionInfo);
+        s.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        var sectionlayout = new HorizontalLayout(s);
+      //  proflayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        var layout = new VerticalLayout(proflayout, sectionlayout);
+        layout.setPadding(false);
+        notification.add(layout);
+
+        return notification;
+    }
 
 	private void bodyConfig() {
 		body = new Div();
@@ -99,17 +168,50 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		.set("border", "2px solid black")
 		.set("border-radius", "8px")
 		.set("padding", "20px")
-		.set("width", "900px")
-		.set("height", "600px")
-		.set("margin-top", "10px")
+		.set("width", "360px")
+		.set("height", "420px")
+		//.set("margin-top", "10px")
 		.set("overflow", "auto")
 		.set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1), 4px 0px 10px rgba(0, 0, 0, 0.1), -4px 0px 10px rgba(0, 0, 0, 0.1), 0px -4px 10px rgba(0, 0, 0, 0.1)");
 
 		TextField searchField = new TextField();
-		searchField.setWidth("35%");
+		searchField.setWidth("64%");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+
+		Button logoutBtn = new Button("Log out", e -> {
+
+			ConfirmDialog confirmLogout = new ConfirmDialog();
+
+			confirmLogout.setText("Confirm Logout...");
+			confirmLogout.setConfirmText("confirm");
+			confirmLogout.setCancelable(true);
+
+			confirmLogout.addConfirmListener(evt -> {
+				confirmLogout.close();
+
+				UI.getCurrent().getSession().close();
+				UI.getCurrent().navigate(StudentLoginView.class);
+			});
+
+			confirmLogout.open();
+
+		});
+
+		logoutBtn.getStyle()
+		.setColor("white")
+		.set("background-color", "#822020")
+		.set("border-radius", "5px")
+		.setHeight("35px")
+		.setFontSize("13px")
+		.set("box-shadow", "0 2px 8px rgba(0,0,0,0.2)")
+		.set("transition", "transform 0.2s ease-in-out");
+		logoutBtn.getElement().executeJs(
+				"this.addEventListener('mouseover', function() { this.style.transform='scale(1.05)'; });" +
+						"this.addEventListener('mouseout', function() { this.style.transform='scale(1.0)'; });"
+				);
+
 
 //		// Section label
 //		Span labelText = new Span("Section:");
@@ -124,7 +226,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		//HorizontalLayout sectionLabel = new HorizontalLayout(labelText, sectionLabelText);
 		//sectionLabel.setAlignItems(Alignment.CENTER);
 
-		HorizontalLayout topBar = new HorizontalLayout(searchField);
+		HorizontalLayout topBar = new HorizontalLayout(searchField, logoutBtn);
 		topBar.setWidthFull();
 		topBar.setAlignItems(Alignment.CENTER);
 		topBar.setJustifyContentMode(JustifyContentMode.BETWEEN);
@@ -140,17 +242,71 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		Span field2 = new Span("Description");
 		Span field3 = new Span("Professor");
 		Span field4 = new Span("Status");
-		
 
 		List.of(field1, field2, field3, field4).forEach(field -> {
 			field.getStyle().setFontWeight("bold");
 			field.getStyle().setFontSize("17px");
 		});
 		
-		subjectGrid.addColumn(SubjectEntity::getSubjectCode).setHeader(field1).setAutoWidth(true);
-		subjectGrid.addColumn(SubjectEntity::getSubjectDescription).setHeader(field2).setAutoWidth(true);
-		subjectGrid.addColumn(s -> s.getSection().getTeacher().getFirstname() + " " + s.getSection().getTeacher().getSurname()).setHeader(field3).setAutoWidth(true);
-		subjectGrid.addColumn(createStatusComponentRenderer()).setHeader(field4).setAutoWidth(true);
+		subjectGrid.addComponentColumn(source -> {
+			
+			Span subCode = new Span(source.getSubjectCode());
+
+			Button notificationBtn = new Button(VaadinIcon.ELLIPSIS_DOTS_H.create());
+			notificationBtn.addThemeVariants(ButtonVariant.LUMO_SMALL);
+			notificationBtn.getStyle().setBackgroundColor("transparent");
+			
+			notificationBtn.addClickListener(event -> {
+				
+				this.setEnabled(false);
+				notificationBtn.setEnabled(false);
+				
+				var profnameFormat = source.getSection().getTeacher().getFirstname() + " " + source.getSection().getTeacher().getSurname();
+				var subjectDesc = source.getSubjectDescription();
+				
+				Notification notification = createSubjectCodeInfo(subjectDesc, profnameFormat);
+				notification.open();
+				
+//				Notification notification = new Notification();
+//				//notification.setm
+//				
+//				Paragraph text1 = new Paragraph("Subject: " + source.getSubjectDescription());
+//				Paragraph text2 = new Paragraph("Prof: " + source.getSection().getTeacher().getFirstname() + " " + source.getSection().getTeacher().getSurname());
+//				Div text = new Div(text1, text2);
+//				text.getStyle().setWidth("300px");
+//				
+//				Button closeBtn = new Button(new Icon("lumo", "cross"));
+//				closeBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+//				closeBtn.setAriaLabel("Close");
+//				closeBtn.addClickListener(event_ -> {
+//					notification.close();
+//					notificationBtn.setEnabled(true);
+//					this.setEnabled(true);
+				});
+//				
+//				HorizontalLayout notificationLayout = new HorizontalLayout(text, closeBtn);
+//				notificationLayout.setAlignSelf(Alignment.CENTER);
+//				notification.add(notificationLayout);
+//				notification.open();
+//				notification.setPosition(Notification.Position.MIDDLE);
+//				
+//			});
+//			
+			HorizontalLayout componentColumn = new HorizontalLayout(subCode, notificationBtn);
+			componentColumn.setSizeFull();
+			componentColumn.setAlignItems(FlexComponent.Alignment.CENTER);
+			componentColumn.expand(subCode);
+//			
+			return componentColumn;
+			
+		}).setHeader(field1).setAutoWidth(true);
+		
+		
+		
+		//subjectGrid.addColumn(SubjectEntity::getSubjectCode).setHeader(field1).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+	//	subjectGrid.addColumn(SubjectEntity::getSubjectDescription).setHeader(field2).setAutoWidth(true);
+		//subjectGrid.addColumn(s -> s.getSection().getTeacher().getFirstname() + " " + s.getSection().getTeacher().getSurname()).setHeader(field3).setAutoWidth(true);
+		subjectGrid.addColumn(createStatusComponentRenderer()).setHeader(field4).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
 		
 
 		subjectGrid.addSelectionListener(selection -> {
