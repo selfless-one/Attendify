@@ -14,7 +14,7 @@ public class StudentDashboardHeader extends HorizontalLayout {
 	public StudentDashboardHeader(StudentAccountEntity acc) {
 		
 		this.setJustifyContentMode(JustifyContentMode.BETWEEN);
-		this.setWidth("400px");
+		this.setWidth("355px");
 		this.getStyle().set("margin-top", "20px");
 		
 		Span studentLabel = new Span(acc.getFirstname() + " " + acc.getSurname());

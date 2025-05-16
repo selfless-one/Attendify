@@ -168,14 +168,14 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
 		.set("border", "2px solid black")
 		.set("border-radius", "8px")
 		.set("padding", "20px")
-		.set("width", "360px")
+		.set("width", "320px")
 		.set("height", "420px")
 		//.set("margin-top", "10px")
 		.set("overflow", "auto")
 		.set("box-shadow", "0px 4px 10px rgba(0, 0, 0, 0.1), 4px 0px 10px rgba(0, 0, 0, 0.1), -4px 0px 10px rgba(0, 0, 0, 0.1), 0px -4px 10px rgba(0, 0, 0, 0.1)");
 
 		TextField searchField = new TextField();
-		searchField.setWidth("64%");
+		searchField.setWidth("66%");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -480,6 +480,7 @@ public class StudentDashboardView extends VerticalLayout implements HasUrlParame
         bodyConfig();
         
         setSizeFull();
+        setWidthFull();
         setAlignItems(Alignment.CENTER);
         
         add(header, body);
