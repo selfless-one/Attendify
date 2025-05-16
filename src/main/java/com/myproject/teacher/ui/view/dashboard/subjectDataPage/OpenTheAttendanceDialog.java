@@ -508,16 +508,24 @@ public class OpenTheAttendanceDialog extends Dialog {
 
 			DownloadStudentAttendified exporter = new DownloadStudentAttendified(IdOfSelectedSubject, subjectService);
 			StreamResource excelResource = exporter.getExcelResource();
-			
+
 			Anchor downloadLink = new Anchor(excelResource, "");
 		    downloadLink.getElement().setAttribute("download", true); // Important!
 		    downloadLink.getStyle().set("display", "none"); // hide from view
 		    add(downloadLink); // add to layout
-		   
+
 		    downloadLink.getElement().executeJs("this.click();"); // Simulate automatic click
-			
-			subjectService.hasBeendownloadedStudentData(subjectEntity.getId());
-			UI.getCurrent().getPage().reload();
+
+		    ConfirmDialog confirmResetD = new ConfirmDialog("Confirm Data Reset", 
+		    		"Download complete. Verify the file, then confirm to reset student data and allow attendance again", 
+		    		"Confirm", 
+		    		confirm -> {
+		    			subjectService.hasBeendownloadedStudentData(subjectEntity.getId());
+		    			UI.getCurrent().getPage().reload();
+		    		});
+
+		    confirmResetD.setCancelable(true);
+		    confirmResetD.open();
 
 		});
 
