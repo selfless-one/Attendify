@@ -22,3 +22,6 @@ README.md
 LICENSE*
 Dockerfile
 .factorypath
+
+src/main/bundles/dev.bundle
+src/main/bundles/prod.bundle
