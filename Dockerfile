@@ -17,7 +17,7 @@ RUN mvn vaadin:build-frontend
 RUN mvn clean package -DskipTests
 
 # ---------- Stage 2: Run ----------
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 # Set work directory
 WORKDIR /app
