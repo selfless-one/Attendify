@@ -3,6 +3,7 @@ package com.myproject;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.Clock;
 
+@PWA(name = "My App", shortName = "App")
 @Push
 @EnableScheduling
 @SpringBootApplication

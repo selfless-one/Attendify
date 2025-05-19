@@ -163,9 +163,20 @@ public class StudentLoginView extends VerticalLayout {
 
 	}
 
+	
+	private static boolean hasBeenReloaded;
+
+	private static void reloadFirst() {
+		// reload first because shows nothing at firsts the default route when visiting the site
+		UI.getCurrent().getPage().executeJs("if (!window._reloadedOnce) { window._reloadedOnce = true; location.reload(); }");
+		hasBeenReloaded = true;
+
+	}
 
 	public StudentLoginView(StudentAccountService studentAccountService) {
 
+		if (!hasBeenReloaded) reloadFirst();
+		
 		this.studentAccountService = studentAccountService;
 
 		configureLoginForm();
