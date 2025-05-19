@@ -6,9 +6,11 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.myproject.backend.teacher.entity.SubjectEntity;
 import com.myproject.backend.teacher.repository.SubjectRepository;
+
 
 @Component
 public class AttendanceStatusScheduler {
@@ -22,6 +24,7 @@ public class AttendanceStatusScheduler {
 	}
 	
 	@Scheduled(fixedRate = 30000)
+	@Transactional
 	public void checkAndCloseSubjects() {
 		
 		List<SubjectEntity> openSubjects = subjectRepository.findByStatus("Open");
